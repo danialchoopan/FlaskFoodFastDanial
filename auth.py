@@ -15,6 +15,7 @@ def register_user():
 
     new_user = User(
         name=data["name"],
+        city_name=data["city_name"],
         phone=data["phone"]
     )
     new_user.set_password(data["password"])  # تنظیم رمز عبور هش‌شده
@@ -41,6 +42,7 @@ def register_seller():
     new_seller = Seller(
         owner_name=data["owner_name"],
         restaurant_name=data["restaurant_name"],
+        city_name=data["city_name"],
         phone=data["phone"],
         address=data["address"],
         address_coordinate=data["address_coordinate"]

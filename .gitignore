@@ -1,4 +1,5 @@
-instance/database.sqlite
+instance/
 uploads/
 .venv
 .idea
+__pycache__
