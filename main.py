@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from models import db, User, Seller, Food, Order, OrderDetail
 from auth import register_user, register_seller, login_user, login_seller,token_required_seller,token_required_user
+from flask_cors import CORS
 
 import os
 from werkzeug.utils import secure_filename
@@ -9,6 +10,7 @@ UPLOAD_FOLDER = 'uploads/'  # مسیر ذخیره تصاویر
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
 app = Flask(__name__)
+CORS(app)
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"

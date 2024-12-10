@@ -43,6 +43,7 @@ def register_seller():
         owner_name=data["owner_name"],
         restaurant_name=data["restaurant_name"],
         city_name=data["city_name"],
+        category=data["category"],
         phone=data["phone"],
         address=data["address"],
         address_coordinate=data["address_coordinate"]

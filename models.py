@@ -34,6 +34,7 @@ class Seller(db.Model):
     phone = db.Column(db.String(15), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
     city_name = db.Column(db.Text, nullable=False)
+    category = db.Column(db.Text, nullable=False)
     address = db.Column(db.Text, nullable=True)
     address_coordinate = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -52,6 +53,7 @@ class Food(db.Model):
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=True)
     price = db.Column(db.Numeric(10, 2), nullable=False)
+    phone = db.Column(db.String(15), unique=True, nullable=False)
     availability = db.Column(db.Boolean, default=True)
     seller = db.relationship('Seller', backref=db.backref('foods', lazy=True))
 
