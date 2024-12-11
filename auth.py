@@ -16,6 +16,7 @@ def register_user():
     new_user = User(
         name=data["name"],
         city_name=data["city_name"],
+        address=data["address"],
         phone=data["phone"]
     )
     new_user.set_password(data["password"])  # تنظیم رمز عبور هش‌شده
