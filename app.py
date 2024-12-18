@@ -18,6 +18,10 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db.init_app(app)
 
+with app.app_context():
+    db.create_all()
+
+
 
 
 # ثبت و ورود
@@ -37,9 +41,114 @@ def seller_register():
 def seller_login():
     return login_seller()
 
+#ویرایش کاربر شهر و رمزعبور
+@app.route("/user/edit/password", methods=["POST"])
+@token_required_user
+def edit_user_password():
+    data = request.json
+    new_password = data.get("new_password")
+    old_password = data.get("old_password")
+
+    user = User.query.get_or_404(request.user.id)
+
+    if not user.check_password(old_password):
+        return jsonify({"success": False,"message": "رمزعبور وارد شده شما اشتباه است"}), 400
+
+    user.set_password(new_password)
+    db.session.commit()
+
+    return jsonify({"success": True}), 200
+
+
+@app.route("/user/edit/city", methods=["POST"])
+@token_required_user
+def edit_user_city():
+    data = request.json
+    new_city = data.get("new_city_name")
+
+    if not new_city:
+        return jsonify({"success": False}), 400
+
+    user = User.query.get_or_404(request.user.id)
+    user.city_name = new_city
+    db.session.commit()
+    return jsonify({"success": True}), 200
+
+
+#ویرایش فروشنده شهر و رمزعبور
+@app.route("/seller/edit/password", methods=["POST"])
+@token_required_seller
+def edit_seller_password():
+    data = request.json
+    new_password = data.get("new_password")
+    old_password = data.get("old_password")
+
+    seller = Seller.query.get_or_404(request.seller.id)
+
+    if not seller.check_password(old_password):
+        return jsonify({"success": False, "message": "رمزعبور وارد شده شما اشتباه است"}), 400
+
+    seller.set_password(new_password)
+    db.session.commit()
+
+    return jsonify({"success": True}), 200
+
+
+@app.route("/seller/edit/city", methods=["POST"])
+@token_required_seller
+def edit_seller_city():
+    data = request.json
+    new_city = data.get("new_city_name")
+
+    if not new_city:
+        return jsonify({"success": False}), 400
+
+    seller = Seller.query.get_or_404(request.seller.id)
+    seller.city_name = new_city
+    db.session.commit()
+    return jsonify({"success": True}), 200
+
+#تمامی فروشگاه های اطراف
+@app.route("/user/restaurants", methods=["GET"])
+@token_required_user
+def get_restaurants():
+    user = User.query.get_or_404(request.user.id)
+    sellers = Seller.query.filter_by(city_name=user.city_name).all()
+
+    restaurants = [
+        {
+            "name": seller.restaurant_name,
+            "category": seller.category,
+            "address": seller.address,
+            "open": seller.open,
+            "image": f"/images/restaurants/{seller.id}.jpg"  # Assuming images are named by seller ID
+        }
+        for seller in sellers
+    ]
+
+    return jsonify({"success": True, "restaurants": restaurants}), 200
+
+
 # بررسی نوع فایل مجاز
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+#تغییر وضعیت فروشگاه
+
+@app.route("/seller/open", methods=["POST"])
+@token_required_seller
+def seller_edit_open():
+    data = request.json
+    open_seller = data.get("open")
+
+    if not open_seller:
+        return jsonify({"success": False}), 400
+
+    seller = Seller.query.get_or_404(request.seller.id)
+    seller.open = open_seller
+    db.session.commit()
+    return jsonify({"success": True,"seller_open":seller.open}), 200
+
 
 #اپلود تصویر فروشنده
 @app.route('/seller/upload_image', methods=['POST'])

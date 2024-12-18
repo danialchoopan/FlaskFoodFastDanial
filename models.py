@@ -10,12 +10,10 @@ db = SQLAlchemy()
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
-    email = db.Column(db.String(100), unique=True, nullable=True)
     phone = db.Column(db.String(15), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
     city_name = db.Column(db.Text, nullable=False)
     address = db.Column(db.Text, nullable=True)
-    address_coordinate = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     token = db.Column(db.String(200), unique=True, nullable=True)
 
@@ -29,14 +27,12 @@ class User(db.Model):
 class Seller(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     restaurant_name = db.Column(db.String(100), nullable=False)
-    owner_name = db.Column(db.String(100), nullable=False)
-    email = db.Column(db.String(100), unique=True, nullable=True)
+    open = db.Column(db.Boolean, nullable=False, default=False)
     phone = db.Column(db.String(15), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
     city_name = db.Column(db.Text, nullable=False)
     category = db.Column(db.Text, nullable=False)
     address = db.Column(db.Text, nullable=True)
-    address_coordinate = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     token = db.Column(db.String(200), unique=True, nullable=True)
 

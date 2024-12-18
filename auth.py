@@ -28,26 +28,27 @@ def register_user():
 
     return jsonify({
         "message": "ثبت‌نام کاربر با موفقیت انجام شد.",
-        "token":new_user.token
+        "token":new_user.token,
+        "name":new_user.name,
+        "phone":new_user.phone,
+        "city_name":new_user.city_name,
     }), 201
 
 # ثبت‌نام فروشنده
 def register_seller():
     data = request.json
-    if not data.get("owner_name") or not data.get("phone") or not data.get("password") or not data["restaurant_name"] or not data["address_coordinate"]:
-        return jsonify({"message": "تمام اطلاعات الزامی است."}), 400
+    # if data.get("phone") or not data.get("password") or not data["restaurant_name"]:
+    #     return jsonify({"message": "تمام اطلاعات الزامی است."}), 400
 
     if Seller.query.filter_by(phone=data["phone"]).first():
         return jsonify({"message": "شماره تلفن قبلا ثبت شده است."}), 400
 
     new_seller = Seller(
-        owner_name=data["owner_name"],
         restaurant_name=data["restaurant_name"],
         city_name=data["city_name"],
         category=data["category"],
         phone=data["phone"],
-        address=data["address"],
-        address_coordinate=data["address_coordinate"]
+        address=data["address"]
     )
     new_seller.set_password(data["password"])  # تنظیم رمز عبور هش‌شده
 
@@ -58,7 +59,10 @@ def register_seller():
 
     return jsonify({
         "message": "ثبت‌نام فروشنده با موفقیت انجام شد.",
-        "token": new_seller.token
+        "token": new_seller.token,
+        "name": new_seller.restaurant_name,
+        "phone": new_seller.phone,
+        "city_name": new_seller.city_name,
     }), 201
 
 # ورود کاربر
@@ -76,7 +80,12 @@ def login_user():
 
     return jsonify({
         "message":"کاربر با موفقیت وارد شد",
-        "token": user.token}), 200
+        "token": user.token,
+        "name": user.name,
+        "phone": user.phone,
+        "city_name": user.city_name,
+    }), 200
+
 
 # ورود فروشنده
 def login_seller():
@@ -93,7 +102,11 @@ def login_seller():
 
     return jsonify({
         "message":"فروشنده با موفقیت وارد شد",
-        "token": seller.token}), 200
+        "token": seller.token,
+        "restaurant_name": seller.restaurant_name,
+        "phone": seller.phone,
+        "city_name": seller.city_name,
+    }), 200
 
 # میان‌افزار برای احراز هویت با توکن فروشنده
 def token_required_seller(f):
@@ -128,10 +141,10 @@ def token_required_user(f):
             token = token.split(" ")[1]
 
         print(token)
-        seller = User.query.filter_by(token=token).first()
-        if not seller:
+        user = User.query.filter_by(token=token).first()
+        if not user:
             return jsonify({"message": "توکن معتبر نیست."}), 401
 
-        request.seller = seller
+        request.user = user
         return f(*args, **kwargs)
     return decorated
