@@ -33,6 +33,7 @@ class Seller(db.Model):
     city_name = db.Column(db.Text, nullable=False)
     category = db.Column(db.Text, nullable=False)
     address = db.Column(db.Text, nullable=True)
+    image = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     token = db.Column(db.String(200), unique=True, nullable=True)
 
@@ -60,7 +61,7 @@ class Order(db.Model):
     seller_id = db.Column(db.Integer, db.ForeignKey('seller.id'), nullable=False)
     order_date = db.Column(db.DateTime, default=datetime.utcnow)
     total_price = db.Column(db.Numeric(10, 2), nullable=False)
-    status = db.Column(db.String(50), default="در حال پردازش")
+    status = db.Column(db.Text, default="در انتظار تایید رستوران")
     user = db.relationship('User', backref=db.backref('orders', lazy=True))
     seller = db.relationship('Seller', backref=db.backref('orders', lazy=True))
 
