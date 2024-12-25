@@ -32,6 +32,7 @@ def register_user():
         "name":new_user.name,
         "phone":new_user.phone,
         "city_name":new_user.city_name,
+        "id":new_user.id,
     }), 201
 
 # ثبت‌نام فروشنده
@@ -63,6 +64,7 @@ def register_seller():
         "name": new_seller.restaurant_name,
         "phone": new_seller.phone,
         "city_name": new_seller.city_name,
+        "id": new_seller.id,
     }), 201
 
 # ورود کاربر
@@ -84,6 +86,7 @@ def login_user():
         "name": user.name,
         "phone": user.phone,
         "city_name": user.city_name,
+        "id": user.id,
     }), 200
 
 
@@ -106,6 +109,7 @@ def login_seller():
         "restaurant_name": seller.restaurant_name,
         "phone": seller.phone,
         "city_name": seller.city_name,
+        "id": seller.id,
     }), 200
 
 # میان‌افزار برای احراز هویت با توکن فروشنده

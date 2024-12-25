@@ -114,6 +114,37 @@ def edit_seller_city():
     db.session.commit()
     return jsonify({"success": True}), 200
 
+@app.route("/seller/banner", methods=["GET"])
+@token_required_seller
+def get_restaurant_banner():
+    seller = Seller.query.get_or_404(request.seller.id)
+    return jsonify({"success": True, "img": seller.image.replace("\\", "/") if seller.image else "static/banner/order-no-cost.jpg"}), 200
+
+@app.route("/seller/banner/update", methods=["PUT"])
+@token_required_seller
+def edit_restaurant_banner():
+    data = request.json
+    seller = Seller.query.get_or_404(request.seller.id)
+    photo_data = data.get("photo")
+    if photo_data:
+        try:
+            image_data = b64decode(photo_data.split(",")[-1])
+            os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+            image_filename = secure_filename(f"{seller.restaurant_name}_image.jpg")
+            image_path = os.path.join(UPLOAD_FOLDER, image_filename)
+            with open(image_path, "wb") as image_file:
+                image_file.write(image_data)
+        except Exception as e:
+            return jsonify({"error": f"Invalid image data: {str(e)}"}), 400
+    else:
+        image_path = None
+
+    seller.image = image_path
+    db.session.commit()
+
+    return jsonify({"success": True, "img": seller.image.replace("\\", "/") if seller.image else "static/banner/order-no-cost.jpg"}), 200
+
+
 
 # تمامی فروشگاه های اطراف
 @app.route("/user/restaurants", methods=["GET"])
@@ -129,7 +160,7 @@ def get_restaurants():
             "category": seller.category,
             "address": seller.address,
             "open": seller.open,
-            "image": f"/images/restaurants/{seller.id}.jpg"
+            "image": seller.image.replace("\\", "/") if seller.image else "static/banner/order-no-cost.jpg"
         }
         for seller in sellers
         if seller.open and Food.query.filter_by(seller_id=seller.id).first()  # Check if the seller is open and has foods
@@ -151,7 +182,7 @@ def get_restaurant_by_id(id):
         "restaurant_category": seller.category,
         "restaurant_address": seller.address,
         "restaurant_open": seller.open,
-        "restaurant_image": f"/images/restaurants/{seller.id}.jpg",
+        "restaurant_image": seller.image.replace("\\", "/") if seller.image else "static/banner/order-no-cost.jpg",
         "foods": [  # List of food dictionaries
             {
                 "food_id": food.id,
