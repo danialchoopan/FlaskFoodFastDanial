@@ -2,9 +2,20 @@ from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 
-
-
 db = SQLAlchemy()
+
+# مدل مدیران سیستم
+class Admin(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(100), unique=True, nullable=False)
+    password = db.Column(db.String(255), nullable=False)
+    token = db.Column(db.String(200), unique=True, nullable=True)
+
+    def set_password(self, password):
+        self.password = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password, password)
 
 # مدل کاربران
 class User(db.Model):
@@ -14,6 +25,9 @@ class User(db.Model):
     password = db.Column(db.String(255), nullable=False)
     city_name = db.Column(db.Text, nullable=False)
     address = db.Column(db.Text, nullable=True)
+    latitude = db.Column(db.Float, nullable=True)
+    longitude = db.Column(db.Float, nullable=True)
+    is_active = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     token = db.Column(db.String(200), unique=True, nullable=True)
 
@@ -33,6 +47,9 @@ class Seller(db.Model):
     city_name = db.Column(db.Text, nullable=False)
     category = db.Column(db.Text, nullable=False)
     address = db.Column(db.Text, nullable=True)
+    latitude = db.Column(db.Float, nullable=True)
+    longitude = db.Column(db.Float, nullable=True)
+    is_active = db.Column(db.Boolean, default=True)
     image = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     token = db.Column(db.String(200), unique=True, nullable=True)
@@ -42,6 +59,13 @@ class Seller(db.Model):
 
     def check_password(self, password):
         return check_password_hash(self.password, password)
+
+    @property
+    def average_rating(self):
+        ratings = [comment.rating for comment in self.comments if comment.rating]
+        if not ratings:
+            return 5.0
+        return sum(ratings) / len(ratings)
 
 # مدل غذاها
 class Food(db.Model):
@@ -81,7 +105,7 @@ class Comment(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     seller_id = db.Column(db.Integer, db.ForeignKey('seller.id'), nullable=False)
     content = db.Column(db.Text, nullable=False)
+    rating = db.Column(db.Integer, default=5)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     user = db.relationship('User', backref=db.backref('comments', lazy=True))
     seller = db.relationship('Seller', backref=db.backref('comments', lazy=True))
-
