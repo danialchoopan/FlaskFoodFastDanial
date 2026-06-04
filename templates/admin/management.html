@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}مدیریت کاربران و رستوران‌ها{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+    <!-- مدیریت رستوران‌ها -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="p-6 border-b border-gray-100">
+            <h2 class="text-xl font-bold text-gray-800">مدیریت رستوران‌ها</h2>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-right">
+                <thead class="bg-gray-50 text-gray-600 text-sm">
+                    <tr>
+                        <th class="p-4">نام رستوران</th>
+                        <th class="p-4">مدیر</th>
+                        <th class="p-4">شهر</th>
+                        <th class="p-4">وضعیت</th>
+                        <th class="p-4">عملیات</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    {% for seller in sellers %}
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="p-4 font-bold text-gray-800">{{ seller.restaurant_name }}</td>
+                        <td class="p-4 text-gray-600">{{ seller.name }}</td>
+                        <td class="p-4 text-gray-600">{{ seller.city_name }}</td>
+                        <td class="p-4">
+                            {% if seller.is_active %}
+                            <span class="text-green-600 bg-green-50 px-2 py-1 rounded text-xs">فعال</span>
+                            {% else %}
+                            <span class="text-red-600 bg-red-50 px-2 py-1 rounded text-xs">مسدود</span>
+                            {% endif %}
+                        </td>
+                        <td class="p-4">
+                            <form action="{{ url_for('admin.toggle_seller', id=seller.id) }}" method="POST">
+                                <button type="submit" class="text-sm {% if seller.is_active %}text-red-500 hover:text-red-700{% else %}text-green-500 hover:text-green-700{% endif %} font-medium">
+                                    {% if seller.is_active %}مسدود کردن{% else %}فعال‌سازی{% endif %}
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- مدیریت کاربران -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="p-6 border-b border-gray-100">
+            <h2 class="text-xl font-bold text-gray-800">مدیریت کاربران</h2>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-right">
+                <thead class="bg-gray-50 text-gray-600 text-sm">
+                    <tr>
+                        <th class="p-4">نام</th>
+                        <th class="p-4">تلفن</th>
+                        <th class="p-4">شهر</th>
+                        <th class="p-4">وضعیت</th>
+                        <th class="p-4">عملیات</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    {% for user in users %}
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="p-4 font-bold text-gray-800">{{ user.name }}</td>
+                        <td class="p-4 text-gray-600">{{ user.phone }}</td>
+                        <td class="p-4 text-gray-600">{{ user.city_name }}</td>
+                        <td class="p-4">
+                            {% if user.is_active %}
+                            <span class="text-green-600 bg-green-50 px-2 py-1 rounded text-xs">فعال</span>
+                            {% else %}
+                            <span class="text-red-600 bg-red-50 px-2 py-1 rounded text-xs">مسدود</span>
+                            {% endif %}
+                        </td>
+                        <td class="p-4">
+                            <form action="{{ url_for('admin.toggle_user', id=user.id) }}" method="POST">
+                                <button type="submit" class="text-sm {% if user.is_active %}text-red-500 hover:text-red-700{% else %}text-green-500 hover:text-green-700{% endif %} font-medium">
+                                    {% if user.is_active %}مسدود کردن{% else %}فعال‌سازی{% endif %}
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
