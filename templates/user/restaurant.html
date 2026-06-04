@@ -5,7 +5,7 @@
 {% block content %}
 <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-8">
     <div class="h-64 bg-gray-300 relative">
-        <img src="{{ restaurant.image or 'https://via.placeholder.com/1200x400?text=' + restaurant.restaurant_name }}" class="w-full h-full object-cover">
+        <img src="{{ url_for('static', filename=restaurant.image.replace('static/', '')) if restaurant.image else url_for('static', filename='banner/order-no-cost.jpg') }}" class="w-full h-full object-cover">
         <div class="absolute inset-0 bg-black bg-opacity-40 flex items-end">
             <div class="p-8 text-white">
                 <h1 class="text-4xl font-bold">{{ restaurant.restaurant_name }}</h1>
@@ -37,7 +37,7 @@
             {% for food in restaurant.foods %}
             <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100 flex justify-between items-center">
                 <div class="flex items-center">
-                    <img src="{{ food.photo or 'https://via.placeholder.com/80?text=Food' }}" class="w-20 h-20 rounded-md object-cover ml-4">
+                    <img src="{{ url_for('static', filename=food.photo.replace('static/', '')) if food.photo else url_for('static', filename='banner/order-no-cost.jpg') }}" class="w-20 h-20 rounded-md object-cover ml-4">
                     <div>
                         <h3 class="font-bold text-lg text-gray-800">{{ food.name }}</h3>
                         <p class="text-gray-500 text-sm">{{ food.description }}</p>

@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}سفارشات من{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <h1 class="text-2xl font-bold text-gray-800 mb-8">تاریخچه سفارشات</h1>
+
+    <div class="space-y-6">
+        {% for order in orders %}
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                <div>
+                    <span class="text-sm text-gray-500 ml-2">کد سفارش: #{{ order.id }}</span>
+                    <span class="font-bold text-gray-800">{{ order.seller.restaurant_name }}</span>
+                </div>
+                <span class="px-3 py-1 rounded-full text-xs font-bold
+                    {% if order.status == 'سفارش شما تکمیل شد' %} bg-green-100 text-green-700
+                    {% elif 'لغو' in order.status %} bg-red-100 text-red-700
+                    {% else %} bg-blue-100 text-blue-700 {% endif %}">
+                    {{ order.status }}
+                </span>
+            </div>
+            <div class="p-6">
+                <div class="flex flex-wrap gap-2 mb-4">
+                    {% for detail in order.details %}
+                    <span class="bg-gray-100 text-gray-600 px-3 py-1 rounded-lg text-sm">
+                        {{ detail.food.name }} ({{ detail.quantity }})
+                    </span>
+                    {% endfor %}
+                </div>
+                <div class="flex justify-between items-center mt-6">
+                    <span class="text-gray-500 text-sm">{{ order.order_date.strftime('%Y/%m/%d %H:%M') }}</span>
+                    <div class="text-lg font-bold text-gray-800">
+                        مجموع: {{ "{:,}".format(order.total_price) }} تومان
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="text-center py-20">
+            <div class="text-gray-300 mb-4">
+                <svg class="w-20 h-20 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+            </div>
+            <p class="text-gray-500">هنوز هیچ سفارشی ثبت نکرده‌اید.</p>
+            <a href="{{ url_for('web_user.index') }}" class="text-red-500 font-bold mt-4 inline-block hover:underline">مشاهده رستوران‌ها</a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

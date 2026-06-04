@@ -62,10 +62,13 @@ class Seller(db.Model):
 
     @property
     def average_rating(self):
-        ratings = [comment.rating for comment in self.comments if comment.rating]
-        if not ratings:
-            return 5.0
-        return sum(ratings) / len(ratings)
+        from sqlalchemy import func
+        result = db.session.query(func.avg(Comment.rating)).filter(Comment.seller_id == self.id).scalar()
+        return round(float(result), 1) if result else 5.0
+
+    @property
+    def total_ratings(self):
+        return Comment.query.filter_by(seller_id=self.id).count()
 
 # مدل غذاها
 class Food(db.Model):

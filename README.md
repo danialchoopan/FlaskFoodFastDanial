@@ -35,16 +35,16 @@ python3 app.py
 ## تصاویر محیط برنامه (Web UI)
 
 ### صفحه اصلی وب‌سایت
-![صفحه اصلی](./static/img/user_home.png)
+![صفحه اصلی](./screenshots/user_home.png)
 
 ### منوی رستوران و نظرات
-![منوی غذا](./static/img/user_menu.png)
+![منوی غذا](./screenshots/user_menu.png)
 
 ### داشبورد مدیریت
-![داشبورد ادمین](./static/img/admin_dashboard.png)
+![داشبورد ادمین](./screenshots/admin_dashboard.png)
 
 ### مدیریت کاربران و رستوران‌ها
-![مدیریت](./static/img/admin_management.png)
+![مدیریت](./screenshots/admin_management.png)
 
 ## اطلاعات ورود پیش‌فرض (تولید شده توسط Seed)
 ### پنل مدیریت کل (`/admin/login`):

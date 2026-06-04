@@ -38,19 +38,37 @@ def edit_seller_city():
 @token_required_seller
 def get_restaurant_banner():
     seller = Seller.query.get_or_404(request.seller.id)
-    return jsonify({"success": True, "image": seller.image.replace("\\", "/") if seller.image else ""}), 200
+    return jsonify({"success": True, "img": seller.image.replace("\\", "/") if seller.image else ""}), 200
 
-@seller_api_bp.route("/seller/banner/update", methods=["POST"])
+@seller_api_bp.route("/seller/banner/update", methods=["PUT"])
 @token_required_seller
 def edit_restaurant_banner():
     data = request.json
-    new_image = data.get("new_image")
-    if not new_image:
-        return jsonify({"success": False}), 400
     seller = Seller.query.get_or_404(request.seller.id)
-    seller.image = new_image
-    db.session.commit()
-    return jsonify({"success": True}), 200
+    photo_data = data.get("photo")
+    if photo_data:
+        try:
+            from base64 import b64decode
+            image_data = b64decode(photo_data.split(",")[-1])
+            os.makedirs(current_app.config['UPLOAD_FOLDER'], exist_ok=True)
+            image_filename = secure_filename(f"{seller.restaurant_name}_banner_{seller.id}.jpg")
+            image_path = os.path.join(current_app.config['UPLOAD_FOLDER'], image_filename)
+            with open(image_path, "wb") as image_file:
+                image_file.write(image_data)
+            seller.image = image_path
+            db.session.commit()
+        except Exception as e:
+            return jsonify({"error": f"Invalid image data: {str(e)}"}), 400
+    else:
+        # Compatibility with simple string update if photo not in base64
+        new_image = data.get("new_image")
+        if new_image:
+            seller.image = new_image
+            db.session.commit()
+        else:
+            return jsonify({"success": False, "message": "No image data provided"}), 400
+
+    return jsonify({"success": True, "img": seller.image.replace("\\", "/") if seller.image else ""}), 200
 
 @seller_api_bp.route("/seller/open", methods=["POST"])
 @token_required_seller
@@ -68,14 +86,14 @@ def seller_edit_open():
 @token_required_seller
 def seller_open_status():
     seller = Seller.query.get_or_404(request.seller.id)
-    return jsonify({"success": True, "open": seller.open}), 200
+    return jsonify({"success": True, "seller_open": seller.open}), 200
 
 @seller_api_bp.route("/seller/upload_image", methods=["POST"])
 @token_required_seller
 def upload_image():
-    if 'file' not in request.files:
+    if 'image' not in request.files:
         return jsonify({"message": "فایلی ارسال نشده است"}), 400
-    file = request.files['file']
+    file = request.files['image']
     if file.filename == '':
         return jsonify({"message": "فایلی انتخاب نشده است"}), 400
     filename = secure_filename(file.filename)
@@ -87,17 +105,38 @@ def upload_image():
 @token_required_seller
 def add_food():
     data = request.json
+
+    # Check for required fields
+    if not all(key in data for key in ["name", "description", "price"]):
+        return jsonify({"error": "Missing required fields"}), 400
+
+    photo_data = data.get("photo")
+    image_path = None
+    if photo_data and photo_data.startswith("data:image"):
+        try:
+            from base64 import b64decode
+            image_data = b64decode(photo_data.split(",")[-1])
+            os.makedirs(current_app.config['UPLOAD_FOLDER'], exist_ok=True)
+            image_filename = secure_filename(f"{data['name']}_{request.seller.id}_image.jpg")
+            image_path = os.path.join(current_app.config['UPLOAD_FOLDER'], image_filename)
+            with open(image_path, "wb") as image_file:
+                image_file.write(image_data)
+        except Exception as e:
+            return jsonify({"error": f"Invalid image data: {str(e)}"}), 400
+    else:
+        image_path = photo_data # Use as string if not base64
+
     new_food = Food(
         seller_id=request.seller.id,
         name=data["name"],
         price=data["price"],
         description=data.get("description"),
-        photo=data.get("photo"),
+        photo=image_path,
         availability=data.get("availability", True)
     )
     db.session.add(new_food)
     db.session.commit()
-    return jsonify({"message": "غذا با موفقیت اضافه شد"}), 201
+    return jsonify({"message": "غذا با موفقیت اضافه شد", "food_id": new_food.id}), 201
 
 @seller_api_bp.route("/seller/food/<int:id>", methods=["GET"])
 @token_required_seller
