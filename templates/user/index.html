@@ -1,31 +1,123 @@
 {% extends 'base.html' %}
 
-{% block title %}لیست رستوران‌ها | دانیال فست فود{% endblock %}
+{% block title %}رستوران‌ها | دانیال فست فود{% endblock %}
 
 {% block content %}
-<div class="mb-8">
-    <h1 class="text-3xl font-extrabold text-gray-900 dark:text-gray-100">رستوران‌های اطراف شما</h1>
-    <p class="mt-2 text-gray-600 dark:text-gray-400">بهترین غذاها را از محبوب‌ترین رستوران‌ها سفارش دهید.</p>
+
+{# ── Hero section ── #}
+<div class="bg-gradient-to-l from-red-600 to-red-700 rounded-2xl p-8 mb-8 text-white relative overflow-hidden">
+  <div class="absolute inset-0 opacity-10">
+    <svg class="w-full h-full" viewBox="0 0 400 200"><circle cx="350" cy="50" r="80" fill="white"/><circle cx="50" cy="180" r="60" fill="white"/></svg>
+  </div>
+  <div class="relative">
+    <h1 class="text-3xl font-bold mb-2">غذای مورد علاقه‌ات رو پیدا کن</h1>
+    <p class="text-red-100 text-lg mb-6">از بهترین رستوران‌های اطرافت سفارش بده</p>
+    <div class="flex gap-3">
+      {% if not session.get('user_id') %}
+      <a href="/login" class="bg-white text-red-600 px-6 py-2.5 rounded-xl font-bold hover:bg-red-50 transition text-sm">ورود و سفارش</a>
+      {% endif %}
+      <a href="#restaurants" class="bg-white/20 text-white px-6 py-2.5 rounded-xl font-bold hover:bg-white/30 transition text-sm">مشاهده رستوران‌ها</a>
+    </div>
+  </div>
+</div>
+
+{# ── Quick info cards ── #}
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+  <div class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700 text-center">
+    <div class="text-2xl mb-1">🍕</div>
+    <div class="text-sm font-bold text-gray-800 dark:text-gray-100">پیتزا</div>
+    <div class="text-xs text-gray-400">فست فود</div>
+  </div>
+  <div class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700 text-center">
+    <div class="text-2xl mb-1">🍖</div>
+    <div class="text-sm font-bold text-gray-800 dark:text-gray-100">کباب</div>
+    <div class="text-xs text-gray-400">ایرانی</div>
+  </div>
+  <div class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700 text-center">
+    <div class="text-2xl mb-1">🍔</div>
+    <div class="text-sm font-bold text-gray-800 dark:text-gray-100">برگر</div>
+    <div class="text-xs text-gray-400">فست فود</div>
+  </div>
+  <div class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700 text-center">
+    <div class="text-2xl mb-1">🥘</div>
+    <div class="text-sm font-bold text-gray-800 dark:text-gray-100">سنتی</div>
+    <div class="text-xs text-gray-400">ایرانی</div>
+  </div>
+</div>
+
+{# ── Restaurant list ── #}
+<div id="restaurants" class="mb-4 flex justify-between items-center">
+  <div>
+    <h2 class="text-xl font-bold text-gray-800 dark:text-gray-100">رستوران‌های فعال</h2>
+    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">{{ restaurants|length }} رستوران آماده سفارش</p>
+  </div>
 </div>
 
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    {% for seller in restaurants %}
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden border border-gray-100 dark:border-gray-700 transition hover:shadow-lg">
-        <img src="{{ url_for('static', filename=seller.image.replace('static/', '')) if seller.image else url_for('static', filename='banner/order-no-cost.jpg') }}" alt="{{ seller.restaurant_name }}" class="w-full h-48 object-cover">
-        <div class="p-4">
-            <div class="flex justify-between items-start">
-                <h2 class="text-xl font-bold text-gray-800 dark:text-gray-100">{{ seller.restaurant_name }}</h2>
-                <span class="bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-300 text-sm font-medium px-2.5 py-0.5 rounded">{{ seller.average_rating }} &#9733;</span>
-            </div>
-            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">{{ seller.category }}</p>
-            <div class="mt-4 flex items-center justify-between">
-                <span class="text-sm {{ 'text-green-600 dark:text-green-400' if seller.open else 'text-red-600 dark:text-red-400' }}">
-                    {{ 'باز است' if seller.open else 'بسته است' }}
-                </span>
-                <a href="/restaurant/{{ seller.id }}" class="bg-red-600 text-white px-4 py-2 rounded text-sm hover:bg-red-700 transition">مشاهده منو</a>
-            </div>
-        </div>
+  {% for seller in restaurants %}
+  <a href="/restaurant/{{ seller.id }}" class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 block group">
+    <div class="relative h-44 overflow-hidden">
+      <img src="{{ url_for('static', filename=seller.image.replace('static/', '')) if seller.image else url_for('static', filename='banner/default.jpg') }}" alt="{{ seller.restaurant_name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+      <div class="absolute top-3 right-3">
+        <span class="bg-yellow-400 text-yellow-900 text-xs font-bold px-2.5 py-1 rounded-lg flex items-center gap-1">
+          {{ seller.average_rating }} &#9733;
+        </span>
+      </div>
+      <div class="absolute top-3 left-3">
+        {% if seller.open %}
+        <span class="bg-green-500 text-white text-xs font-bold px-2.5 py-1 rounded-lg">باز</span>
+        {% else %}
+        <span class="bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-lg">بسته</span>
+        {% endif %}
+      </div>
     </div>
-    {% endfor %}
+    <div class="p-4">
+      <h3 class="font-bold text-gray-800 dark:text-gray-100 text-lg mb-1 group-hover:text-red-600 transition-colors">{{ seller.restaurant_name }}</h3>
+      <div class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-3">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"/></svg>
+        {{ seller.city_name }} &middot; {{ seller.category }}
+      </div>
+      <div class="flex items-center justify-between">
+        <span class="text-xs text-gray-400">{{ seller.address }}</span>
+        <span class="text-red-600 text-sm font-bold group-hover:translate-x-[-4px] transition-transform">&larr; مشاهده منو</span>
+      </div>
+    </div>
+  </a>
+  {% else %}
+  <div class="col-span-full text-center py-20">
+    <div class="text-6xl mb-4">🍽️</div>
+    <p class="text-gray-500 dark:text-gray-400 text-lg mb-2">هنوز رستورانی ثبت نشده است</p>
+    <p class="text-gray-400 dark:text-gray-500 text-sm">به زودی رستوران‌های جدید اضافه می‌شوند</p>
+  </div>
+  {% endfor %}
 </div>
+
+{# ── How it works section ── #}
+<div class="mt-12 mb-8">
+  <h2 class="text-xl font-bold text-gray-800 dark:text-gray-100 text-center mb-8">چطور کار می‌کنه؟</h2>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="text-center">
+      <div class="w-14 h-14 bg-red-100 dark:bg-red-900/30 rounded-2xl flex items-center justify-center mx-auto mb-3">
+        <svg class="w-7 h-7 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg>
+      </div>
+      <h3 class="font-bold text-gray-800 dark:text-gray-100 mb-1">۱. رستوران رو انتخاب کن</h3>
+      <p class="text-sm text-gray-500 dark:text-gray-400">از بین رستوران‌های اطرافت یکی رو انتخاب کن</p>
+    </div>
+    <div class="text-center">
+      <div class="w-14 h-14 bg-yellow-100 dark:bg-yellow-900/30 rounded-2xl flex items-center justify-center mx-auto mb-3">
+        <svg class="w-7 h-7 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"/></svg>
+      </div>
+      <h3 class="font-bold text-gray-800 dark:text-gray-100 mb-1">۲. غذات رو سفارش بده</h3>
+      <p class="text-sm text-gray-500 dark:text-gray-400">غذای مورد علاقه‌ات رو به سبد اضافه کن</p>
+    </div>
+    <div class="text-center">
+      <div class="w-14 h-14 bg-green-100 dark:bg-green-900/30 rounded-2xl flex items-center justify-center mx-auto mb-3">
+        <svg class="w-7 h-7 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0H21a.75.75 0 00.75-.75V11.25a3 3 0 00-3-3h-1.5l-1.72-4.575A1.5 1.5 0 0014.693 2H9.307a1.5 1.5 0 00-1.432 1.05L6.15 7.5H4.5a3 3 0 00-3 3v6.375"/></svg>
+      </div>
+      <h3 class="font-bold text-gray-800 dark:text-gray-100 mb-1">۳. غذات رو تحویل بگیر</h3>
+      <p class="text-sm text-gray-500 dark:text-gray-400">غذات سریع آماده و ارسال میشه</p>
+    </div>
+  </div>
+</div>
+
 {% endblock %}

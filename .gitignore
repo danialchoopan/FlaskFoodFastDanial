@@ -4,4 +4,4 @@ instance/
 .idea
 __pycache__
 static/
-static
+static__pycache__/

@@ -45,6 +45,16 @@ def logout():
     return redirect(url_for("web_seller.login"))
 
 
+@web_seller_bp.route("/seller/web/toggle_open", methods=["POST"])
+@seller_login_required_web
+def toggle_open():
+    seller = Seller.query.get_or_404(session["seller_id"])
+    seller.open = not seller.open
+    db.session.commit()
+    flash(f"رستوران {'باز' if seller.open else 'بسته'} شد.", "success")
+    return redirect(url_for("web_seller.dashboard"))
+
+
 @web_seller_bp.route("/seller/web/dashboard")
 @seller_login_required_web
 def dashboard():

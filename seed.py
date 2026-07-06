@@ -3,7 +3,6 @@ from models import db, User, Seller, Food, Order, OrderDetail, Comment, Admin, S
 from utils.order_status import OrderStatus
 from datetime import datetime, timedelta
 import json
-import random
 
 
 def seed_data():
@@ -42,41 +41,40 @@ def seed_data():
         db.session.add_all(users)
         db.session.flush()
 
-        # Sellers
+        # Sellers with real banner images
         sellers_data = [
-            ("پیتزا دانیال", "09126666666", "تهران", "پیتزا و فست فود", "ونک", 35.75, 51.40, True),
-            ("کباب سرای ریحون", "09127777777", "تهران", "ایرانی", "نیاوران", 35.80, 51.45, True),
-            ("سوپر برگر", "09128888888", "تهران", "فست فود", "سعادت آباد", 35.77, 51.35, True),
-            ("رستوران سنتی نقش جهان", "09129999999", "اصفهان", "ایرانی", "نقش جهان", 32.65, 51.68, True),
-            ("چلوکبابی امیر", "09120000000", "شیراز", "ایرانی", "زند", 29.59, 52.58, False),
+            ("پیتزا دانیال", "09126666666", "تهران", "پیتزا و فست فود", "ونک", 35.75, 51.40, True, "static/banner/pizza.jpg"),
+            ("کباب سرای ریحون", "09127777777", "تهران", "ایرانی", "نیاوران", 35.80, 51.45, True, "static/banner/kebab.jpg"),
+            ("سوپر برگر", "09128888888", "تهران", "فست فود", "سعادت آباد", 35.77, 51.35, True, "static/banner/burger.jpg"),
+            ("رستوران سنتی نقش جهان", "09129999999", "اصفهان", "ایرانی", "نقش جهان", 32.65, 51.68, True, "static/banner/traditional.jpg"),
+            ("چلوکبابی امیر", "09120000000", "شیراز", "ایرانی", "زند", 29.59, 52.58, False, "static/banner/kebabhouse.jpg"),
         ]
         sellers = []
-        for name, phone, city, cat, addr, lat, lon, open_ in sellers_data:
+        for name, phone, city, cat, addr, lat, lon, open_, banner in sellers_data:
             s = Seller(restaurant_name=name, phone=phone, city_name=city, category=cat,
-                       address=addr, latitude=lat, longitude=lon, open=open_,
-                       image="static/banner/default.jpg")
+                       address=addr, latitude=lat, longitude=lon, open=open_, image=banner)
             s.set_password("seller123")
             sellers.append(s)
         db.session.add_all(sellers)
         db.session.flush()
 
-        # Foods
+        # Foods with real images
         foods_data = [
-            (sellers[0].id, "پیتزا پپرونی", 250000, "تند و لذیذ با کالباس درجه یک"),
-            (sellers[0].id, "سیب زمینی سرخ کرده", 95000, "با ادویه مخصوص و سس کچاپ"),
-            (sellers[0].id, "پیتза مخصوص", 320000, "با قارچ و فلفل دلمه"),
-            (sellers[1].id, "چلو کباب کوبیده", 320000, "دو سیخ کباب لقمه با برنج ایرانی"),
-            (sellers[1].id, "چلو جوجه کباب", 280000, "جوجه کباب زعفرانی با برنج"),
-            (sellers[1].id, "آش رشته", 85000, "آش سنتی اصفهان"),
-            (sellers[2].id, "برگر کلاسیک", 180000, "گوشت گوساله با سس مخصوص"),
-            (sellers[2].id, "سیب زمینی", 75000, " خلالی با سس قرمز"),
-            (sellers[3].id, "باقلی پلو با گوشت", 260000, "باقلی پلو سنتی اصفهانی"),
-            (sellers[3].id, "قیمه نثار", 240000, "قیمه نثار اصیل اصفهان"),
+            (sellers[0].id, "پیتزا پپرونی", 250000, "تند و لذیذ با کالباس درجه یک", "static/food/pepperoni.jpg"),
+            (sellers[0].id, "سیب زمینی سرخ کرده", 95000, "با ادویه مخصوص و سس کچاپ", "static/food/fries.jpg"),
+            (sellers[0].id, "پیتزا مخصوص", 320000, "با قارچ و فلفل دلمه", "static/food/pizza_mix.jpg"),
+            (sellers[1].id, "چلو کباب کوبیده", 320000, "دو سیخ کباب لقمه با برنج ایرانی", "static/food/chelow.jpg"),
+            (sellers[1].id, "چلو جوجه کباب", 280000, "جوجه کباب زعفرانی با برنج", "static/food/joojeh.jpg"),
+            (sellers[1].id, "آش رشته", 85000, "آش سنتی اصفهان", "static/food/ash.jpg"),
+            (sellers[2].id, "برگر کلاسیک", 180000, "گوشت گوساله با سس مخصوص", "static/food/burger.jpg"),
+            (sellers[2].id, "سیب زمینی خلالی", 75000, "سیب زمینی خلالی با سس قرمز", "static/food/fries2.jpg"),
+            (sellers[3].id, "باقلی پلو با گوشت", 260000, "باقلی پلو سنتی اصفهانی", "static/food/baghali.jpg"),
+            (sellers[3].id, "قیمه نثار", 240000, "قیمه نثار اصیل اصفهان", "static/food/qeime.jpg"),
         ]
         foods = []
-        for sid, name, price, desc in foods_data:
+        for sid, name, price, desc, photo in foods_data:
             foods.append(Food(seller_id=sid, name=name, price=price, description=desc,
-                              availability=True, photo="static/food/default.jpg"))
+                              availability=True, photo=photo))
         db.session.add_all(foods)
         db.session.flush()
 
@@ -134,6 +132,18 @@ def seed_data():
 
         db.session.commit()
         print("Database seeded successfully!")
+        print("\n=== Login Credentials ===")
+        print("Admin:     username=admin     password=admin123")
+        print("Seller 1:  phone=09126666666  password=seller123  (پیتزا دانیال)")
+        print("Seller 2:  phone=09127777777  password=seller123  (کباب سرای ریحون)")
+        print("Seller 3:  phone=09128888888  password=seller123  (سوپر برگر)")
+        print("Seller 4:  phone=09129999999  password=seller123  (رستوران سنتی نقش جهان)")
+        print("Seller 5:  phone=09120000000  password=seller123  (چلوکبابی امیر)")
+        print("User 1:    phone=09121111111  password=user123   (دانیال)")
+        print("User 2:    phone=09122222222  password=user123   (سارا)")
+        print("User 3:    phone=09123333333  password=user123   (محمد)")
+        print("User 4:    phone=09124444444  password=user123   (زهرا)")
+        print("User 5:    phone=09125555555  password=user123   (علی)")
 
 
 if __name__ == "__main__":

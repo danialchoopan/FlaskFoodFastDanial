@@ -1,5 +1,5 @@
-{% extends "base.html" %}
 {% from 'utils/order_status.html' import status_badge with context %}
+{% extends "base.html" %}
 
 {% block title %}داشبورد رستوران{% endblock %}
 
@@ -61,10 +61,8 @@
             <h3 class="font-bold text-gray-800 dark:text-gray-100">وضعیت رستوران</h3>
             <p class="text-sm text-gray-500 dark:text-gray-400">رستوران فعلًا {{ 'باز' if seller.open else 'بسته' }} است</p>
         </div>
-        <form action="{{ url_for('web_seller.toggle_food', food_id=0) }}" method="POST" class="hidden"></form>
-        <form action="{{ url_for('web_seller.profile') }}" method="POST" class="inline">
+        <form action="{{ url_for('web_seller.toggle_open') }}" method="POST" class="inline">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <input type="hidden" name="open" value="{{ 'off' if seller.open else 'on' }}">
             <button type="submit" class="px-6 py-2 rounded-lg font-bold transition {{ 'bg-red-100 text-red-700 hover:bg-red-200' if seller.open else 'bg-green-100 text-green-700 hover:bg-green-200' }}">
                 {{ 'بستن رستوران' if seller.open else 'باز کردن رستوران' }}
             </button>

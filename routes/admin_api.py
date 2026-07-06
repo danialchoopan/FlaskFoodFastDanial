@@ -24,6 +24,24 @@ def admin_api_required(f):
 @admin_api_bp.route("/users")
 @admin_api_required
 def list_users():
+    """List all users with search and pagination.
+    ---
+    tags: [Admin API]
+    parameters:
+      - in: query
+        name: page
+        schema:
+          type: integer
+          default: 1
+      - in: query
+        name: search
+        schema:
+          type: string
+        description: Search by name or phone
+    responses:
+      200:
+        description: Paginated list of users
+    """
     page = request.args.get('page', 1, type=int)
     search = request.args.get('search', '')
     query = User.query
@@ -40,6 +58,19 @@ def list_users():
 @admin_api_bp.route("/users/<int:user_id>")
 @admin_api_required
 def get_user(user_id):
+    """Get user details and recent orders.
+    ---
+    tags: [Admin API]
+    parameters:
+      - in: path
+        name: user_id
+        required: true
+        schema:
+          type: integer
+    responses:
+      200:
+        description: User details with last 10 orders
+    """
     user = User.query.get_or_404(user_id)
     orders = Order.query.filter_by(user_id=user_id).order_by(Order.order_date.desc()).limit(10).all()
     return jsonify({
@@ -53,6 +84,19 @@ def get_user(user_id):
 @admin_api_bp.route("/users/<int:user_id>/toggle", methods=["PUT"])
 @admin_api_required
 def toggle_user(user_id):
+    """Enable or disable a user account.
+    ---
+    tags: [Admin API]
+    parameters:
+      - in: path
+        name: user_id
+        required: true
+        schema:
+          type: integer
+    responses:
+      200:
+        description: Toggle result
+    """
     user = User.query.get_or_404(user_id)
     user.is_active = not user.is_active
     db.session.commit()
@@ -64,6 +108,23 @@ def toggle_user(user_id):
 @admin_api_bp.route("/sellers")
 @admin_api_required
 def list_sellers():
+    """List all restaurants/sellers with search and pagination.
+    ---
+    tags: [Admin API]
+    parameters:
+      - in: query
+        name: page
+        schema:
+          type: integer
+          default: 1
+      - in: query
+        name: search
+        schema:
+          type: string
+    responses:
+      200:
+        description: Paginated list of sellers
+    """
     page = request.args.get('page', 1, type=int)
     search = request.args.get('search', '')
     query = Seller.query
@@ -81,6 +142,19 @@ def list_sellers():
 @admin_api_bp.route("/sellers/<int:seller_id>")
 @admin_api_required
 def get_seller(seller_id):
+    """Get seller details with order stats.
+    ---
+    tags: [Admin API]
+    parameters:
+      - in: path
+        name: seller_id
+        required: true
+        schema:
+          type: integer
+    responses:
+      200:
+        description: Seller details with order count and total sales
+    """
     seller = Seller.query.get_or_404(seller_id)
     order_count = Order.query.filter_by(seller_id=seller_id).count()
     total_sales = db.session.query(func.sum(Order.total_price)).filter_by(seller_id=seller_id).scalar() or 0
@@ -95,6 +169,19 @@ def get_seller(seller_id):
 @admin_api_bp.route("/sellers/<int:seller_id>/toggle", methods=["PUT"])
 @admin_api_required
 def toggle_seller(seller_id):
+    """Enable or disable a seller/restaurant.
+    ---
+    tags: [Admin API]
+    parameters:
+      - in: path
+        name: seller_id
+        required: true
+        schema:
+          type: integer
+    responses:
+      200:
+        description: Toggle result
+    """
     seller = Seller.query.get_or_404(seller_id)
     seller.is_active = not seller.is_active
     db.session.commit()
@@ -106,6 +193,28 @@ def toggle_seller(seller_id):
 @admin_api_bp.route("/orders")
 @admin_api_required
 def list_orders():
+    """List all orders with filters and pagination.
+    ---
+    tags: [Admin API]
+    parameters:
+      - in: query
+        name: page
+        schema:
+          type: integer
+          default: 1
+      - in: query
+        name: status
+        schema:
+          type: string
+      - in: query
+        name: seller
+        schema:
+          type: string
+        description: Filter by restaurant name
+    responses:
+      200:
+        description: Paginated list of orders
+    """
     page = request.args.get('page', 1, type=int)
     status_filter = request.args.get('status', '')
     seller_filter = request.args.get('seller', '', type=str)
@@ -126,6 +235,19 @@ def list_orders():
 @admin_api_bp.route("/orders/<int:order_id>")
 @admin_api_required
 def get_order(order_id):
+    """Get order details with items.
+    ---
+    tags: [Admin API]
+    parameters:
+      - in: path
+        name: order_id
+        required: true
+        schema:
+          type: integer
+    responses:
+      200:
+        description: Order details with line items
+    """
     order = Order.query.get_or_404(order_id)
     details = OrderDetail.query.filter_by(order_id=order_id).all()
     return jsonify({
@@ -140,6 +262,13 @@ def get_order(order_id):
 @admin_api_bp.route("/analytics/overview")
 @admin_api_required
 def analytics_overview():
+    """Get dashboard overview stats.
+    ---
+    tags: [Admin API]
+    responses:
+      200:
+        description: Users, sellers, orders counts and total sales
+    """
     return jsonify({
         "users_count": User.query.count(),
         "sellers_count": Seller.query.count(),
@@ -151,6 +280,13 @@ def analytics_overview():
 @admin_api_bp.route("/analytics/revenue")
 @admin_api_required
 def analytics_revenue():
+    """Get monthly revenue for the last 6 months.
+    ---
+    tags: [Admin API]
+    responses:
+      200:
+        description: Monthly revenue breakdown
+    """
     now = datetime.utcnow()
     months = []
     for i in range(5, -1, -1):
@@ -170,6 +306,13 @@ def analytics_revenue():
 @admin_api_bp.route("/analytics/order-status")
 @admin_api_required
 def analytics_order_status():
+    """Get order count by status.
+    ---
+    tags: [Admin API]
+    responses:
+      200:
+        description: Order counts per status
+    """
     statuses = {}
     for s in OrderStatus.all():
         statuses[s] = Order.query.filter_by(status=s).count()
@@ -179,6 +322,13 @@ def analytics_order_status():
 @admin_api_bp.route("/analytics/daily-orders")
 @admin_api_required
 def analytics_daily_orders():
+    """Get daily order counts for the last 7 days.
+    ---
+    tags: [Admin API]
+    responses:
+      200:
+        description: Daily order counts
+    """
     now = datetime.utcnow()
     days = []
     for i in range(6, -1, -1):
@@ -193,6 +343,13 @@ def analytics_daily_orders():
 @admin_api_bp.route("/analytics/top-restaurants")
 @admin_api_required
 def analytics_top_restaurants():
+    """Get top 5 restaurants by total sales.
+    ---
+    tags: [Admin API]
+    responses:
+      200:
+        description: Top restaurants with sales and order count
+    """
     results = db.session.query(
         Seller.restaurant_name,
         func.sum(Order.total_price).label('total_sales'),
@@ -209,6 +366,24 @@ def analytics_top_restaurants():
 @admin_api_bp.route("/comments")
 @admin_api_required
 def list_comments():
+    """List all comments with optional rating filter.
+    ---
+    tags: [Admin API]
+    parameters:
+      - in: query
+        name: page
+        schema:
+          type: integer
+          default: 1
+      - in: query
+        name: rating
+        schema:
+          type: integer
+        description: Filter by star rating (1-5)
+    responses:
+      200:
+        description: Paginated list of comments
+    """
     page = request.args.get('page', 1, type=int)
     rating_filter = request.args.get('rating', '', type=str)
     query = Comment.query
@@ -226,6 +401,19 @@ def list_comments():
 @admin_api_bp.route("/comments/<int:comment_id>", methods=["DELETE"])
 @admin_api_required
 def delete_comment(comment_id):
+    """Delete a comment.
+    ---
+    tags: [Admin API]
+    parameters:
+      - in: path
+        name: comment_id
+        required: true
+        schema:
+          type: integer
+    responses:
+      200:
+        description: Comment deleted
+    """
     comment = Comment.query.get_or_404(comment_id)
     db.session.delete(comment)
     db.session.commit()
@@ -237,6 +425,13 @@ def delete_comment(comment_id):
 @admin_api_bp.route("/settings")
 @admin_api_required
 def get_settings():
+    """Get all system settings.
+    ---
+    tags: [Admin API]
+    responses:
+      200:
+        description: All settings as key-value pairs
+    """
     settings = {}
     for s in Setting.query.all():
         try:
@@ -249,6 +444,30 @@ def get_settings():
 @admin_api_bp.route("/settings", methods=["PUT"])
 @admin_api_required
 def update_settings():
+    """Update system settings.
+    ---
+    tags: [Admin API]
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              food_categories:
+                type: array
+                items:
+                  type: string
+              cities:
+                type: array
+                items:
+                  type: string
+              platform_fee_percent:
+                type: string
+    responses:
+      200:
+        description: Settings updated
+    """
     data = request.json
     for key, value in data.items():
         setting = Setting.query.filter_by(key=key).first()
@@ -263,6 +482,13 @@ def update_settings():
 @admin_api_bp.route("/settings/categories", methods=["GET"])
 @admin_api_required
 def get_categories():
+    """Get food categories list.
+    ---
+    tags: [Admin API]
+    responses:
+      200:
+        description: List of category names
+    """
     setting = Setting.query.filter_by(key='food_categories').first()
     categories = json.loads(setting.value) if setting else []
     return jsonify(categories)
@@ -271,6 +497,23 @@ def get_categories():
 @admin_api_bp.route("/settings/categories", methods=["POST"])
 @admin_api_required
 def add_category():
+    """Add a new food category.
+    ---
+    tags: [Admin API]
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [name]
+            properties:
+              name:
+                type: string
+    responses:
+      201:
+        description: Category added
+    """
     data = request.json
     category = data.get('name', '')
     setting = Setting.query.filter_by(key='food_categories').first()
@@ -287,6 +530,19 @@ def add_category():
 @admin_api_bp.route("/settings/categories/<int:index>", methods=["DELETE"])
 @admin_api_required
 def delete_category(index):
+    """Delete a food category by index.
+    ---
+    tags: [Admin API]
+    parameters:
+      - in: path
+        name: index
+        required: true
+        schema:
+          type: integer
+    responses:
+      200:
+        description: Category deleted
+    """
     setting = Setting.query.filter_by(key='food_categories').first()
     if setting:
         categories = json.loads(setting.value)
@@ -300,6 +556,13 @@ def delete_category(index):
 @admin_api_bp.route("/settings/cities", methods=["GET"])
 @admin_api_required
 def get_cities():
+    """Get cities list.
+    ---
+    tags: [Admin API]
+    responses:
+      200:
+        description: List of city names
+    """
     setting = Setting.query.filter_by(key='cities').first()
     cities = json.loads(setting.value) if setting else []
     return jsonify(cities)
@@ -308,6 +571,23 @@ def get_cities():
 @admin_api_bp.route("/settings/cities", methods=["POST"])
 @admin_api_required
 def add_city():
+    """Add a new city.
+    ---
+    tags: [Admin API]
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [name]
+            properties:
+              name:
+                type: string
+    responses:
+      201:
+        description: City added
+    """
     data = request.json
     city = data.get('name', '')
     setting = Setting.query.filter_by(key='cities').first()
@@ -324,6 +604,19 @@ def add_city():
 @admin_api_bp.route("/settings/cities/<int:index>", methods=["DELETE"])
 @admin_api_required
 def delete_city(index):
+    """Delete a city by index.
+    ---
+    tags: [Admin API]
+    parameters:
+      - in: path
+        name: index
+        required: true
+        schema:
+          type: integer
+    responses:
+      200:
+        description: City deleted
+    """
     setting = Setting.query.filter_by(key='cities').first()
     if setting:
         cities = json.loads(setting.value)

@@ -1,101 +1,147 @@
-{% extends "base.html" %}
 {% from 'utils/order_status.html' import status_badge with context %}
+{% extends "base.html" %}
 
-{% block title %}داشبورد مدیریت - دانیال فست فود{% endblock %}
+{% block title %}داشبورد مدیریت{% endblock %}
+
+{% block breadcrumbs %}
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"/></svg>
+<span>داشبورد</span>
+{% endblock %}
 
 {% block content %}
+{# ── Welcome banner ── #}
+<div class="bg-gradient-to-l from-gray-800 to-gray-900 rounded-2xl p-6 mb-8 text-white relative overflow-hidden">
+  <div class="absolute inset-0 opacity-5">
+    <svg class="w-full h-full" viewBox="0 0 400 200"><circle cx="350" cy="50" r="80" fill="white"/><circle cx="50" cy="180" r="60" fill="white"/></svg>
+  </div>
+  <div class="relative flex justify-between items-center">
+    <div>
+      <h1 class="text-2xl font-bold mb-1">خوش آمدید! 👋</h1>
+      <p class="text-gray-300 text-sm">خلاصه‌ای از وضعیت سیستم در یک نگاه</p>
+    </div>
+    <div class="hidden md:flex gap-3">
+      <a href="{{ url_for('admin.orders') }}" class="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-xl text-sm font-bold transition flex items-center gap-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+        سفارشات
+      </a>
+      <a href="{{ url_for('admin.sellers') }}" class="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-xl text-sm font-bold transition flex items-center gap-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.5 21v-7.5a.75.75 0 01.75-.75h3a.75.75 0 01.75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349m-16.5 11.65V9.35m0 0a3.001 3.001 0 003.75-.615A2.993 2.993 0 009.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 002.25 1.016c.896 0 1.7-.393 2.25-1.016a3.001 3.001 0 003.75.614m-16.5 0a3.004 3.004 0 01-.621-4.72L4.318 3.44A1.5 1.5 0 015.378 3h13.243a1.5 1.5 0 011.06.44l1.19 1.189a3 3 0 01-.621 4.72m-13.5 8.65h3.75a.75.75 0 00.75-.75V13.5a.75.75 0 00-.75-.75H6.75a.75.75 0 00-.75.75v3.75c0 .415.336.75.75.75z"/></svg>
+        رستوران‌ها
+      </a>
+    </div>
+  </div>
+</div>
+
 {# ── Stat cards ── #}
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-    <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
-        <div class="flex items-center justify-between">
-            <div>
-                <div class="text-gray-500 dark:text-gray-400 text-sm mb-1">تعداد کاربران</div>
-                <div class="text-3xl font-bold text-gray-800 dark:text-gray-100">{{ stats.users_count }}</div>
-            </div>
-            <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
-                <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-            </div>
-        </div>
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+  <a href="{{ url_for('admin.users') }}" class="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition group">
+    <div class="flex items-center justify-between mb-3">
+      <div class="w-10 h-10 bg-blue-100 dark:bg-blue-900/50 rounded-xl flex items-center justify-center group-hover:scale-110 transition">
+        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/></svg>
+      </div>
+      <span class="text-xs bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 px-2 py-1 rounded-lg font-bold">مشاهده</span>
     </div>
-    <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
-        <div class="flex items-center justify-between">
-            <div>
-                <div class="text-gray-500 dark:text-gray-400 text-sm mb-1">تعداد رستوران‌ها</div>
-                <div class="text-3xl font-bold text-gray-800 dark:text-gray-100">{{ stats.sellers_count }}</div>
-            </div>
-            <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center">
-                <svg class="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
-            </div>
-        </div>
+    <div class="text-2xl font-bold text-gray-800 dark:text-gray-100">{{ stats.users_count }}</div>
+    <div class="text-sm text-gray-500 dark:text-gray-400">کاربر فعال</div>
+  </a>
+
+  <a href="{{ url_for('admin.sellers') }}" class="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition group">
+    <div class="flex items-center justify-between mb-3">
+      <div class="w-10 h-10 bg-purple-100 dark:bg-purple-900/50 rounded-xl flex items-center justify-center group-hover:scale-110 transition">
+        <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13.5 21v-7.5a.75.75 0 01.75-.75h3a.75.75 0 01.75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349m-16.5 11.65V9.35m0 0a3.001 3.001 0 003.75-.615A2.993 2.993 0 009.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 002.25 1.016c.896 0 1.7-.393 2.25-1.016a3.001 3.001 0 003.75.614m-16.5 0a3.004 3.004 0 01-.621-4.72L4.318 3.44A1.5 1.5 0 015.378 3h13.243a1.5 1.5 0 011.06.44l1.19 1.189a3 3 0 01-.621 4.72m-13.5 8.65h3.75a.75.75 0 00.75-.75V13.5a.75.75 0 00-.75-.75H6.75a.75.75 0 00-.75.75v3.75c0 .415.336.75.75.75z"/></svg>
+      </div>
+      <span class="text-xs bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 px-2 py-1 rounded-lg font-bold">مشاهده</span>
     </div>
-    <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
-        <div class="flex items-center justify-between">
-            <div>
-                <div class="text-gray-500 dark:text-gray-400 text-sm mb-1">تعداد سفارشات</div>
-                <div class="text-3xl font-bold text-gray-800 dark:text-gray-100">{{ stats.orders_count }}</div>
-            </div>
-            <div class="w-12 h-12 bg-yellow-100 dark:bg-yellow-900 rounded-lg flex items-center justify-center">
-                <svg class="w-6 h-6 text-yellow-600 dark:text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
-            </div>
-        </div>
+    <div class="text-2xl font-bold text-gray-800 dark:text-gray-100">{{ stats.sellers_count }}</div>
+    <div class="text-sm text-gray-500 dark:text-gray-400">رستوران</div>
+  </a>
+
+  <a href="{{ url_for('admin.orders') }}" class="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition group">
+    <div class="flex items-center justify-between mb-3">
+      <div class="w-10 h-10 bg-yellow-100 dark:bg-yellow-900/50 rounded-xl flex items-center justify-center group-hover:scale-110 transition">
+        <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+      </div>
+      <span class="text-xs bg-yellow-50 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400 px-2 py-1 rounded-lg font-bold">مشاهده</span>
     </div>
-    <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
-        <div class="flex items-center justify-between">
-            <div>
-                <div class="text-gray-500 dark:text-gray-400 text-sm mb-1">مجموع فروش (تومان)</div>
-                <div class="text-3xl font-bold text-green-600 dark:text-green-400">{{ "{:,}".format(stats.total_sales) }}</div>
-            </div>
-            <div class="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center">
-                <svg class="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            </div>
-        </div>
+    <div class="text-2xl font-bold text-gray-800 dark:text-gray-100">{{ stats.orders_count }}</div>
+    <div class="text-sm text-gray-500 dark:text-gray-400">سفارش</div>
+  </a>
+
+  <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
+    <div class="flex items-center justify-between mb-3">
+      <div class="w-10 h-10 bg-green-100 dark:bg-green-900/50 rounded-xl flex items-center justify-center">
+        <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      </div>
     </div>
+    <div class="text-2xl font-bold text-green-600 dark:text-green-400">{{ "{:,}".format(stats.total_sales) }}</div>
+    <div class="text-sm text-gray-500 dark:text-gray-400">تومان فروش</div>
+  </div>
 </div>
 
 {# ── Charts ── #}
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-    <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
-        <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4">فروش ماهانه</h3>
-        <canvas id="revenueChart" height="200"></canvas>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+  <div class="lg:col-span-2 bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="font-bold text-gray-800 dark:text-gray-100">فروش ماهانه</h3>
+      <span class="text-xs bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400 px-2 py-1 rounded-lg">۶ ماه اخیر</span>
     </div>
-    <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
-        <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4">وضعیت سفارشات</h3>
-        <canvas id="statusChart" height="200"></canvas>
-    </div>
+    <canvas id="revenueChart" height="220"></canvas>
+  </div>
+  <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
+    <h3 class="font-bold text-gray-800 dark:text-gray-100 mb-4">وضعیت سفارشات</h3>
+    <canvas id="statusChart" height="220"></canvas>
+  </div>
 </div>
 
-{# ── Recent orders ── #}
-<div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
-    <div class="p-6 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
-        <h2 class="text-xl font-bold text-gray-800 dark:text-gray-100">آخرین سفارشات</h2>
-        <a href="{{ url_for('admin.orders') }}" class="text-red-500 hover:text-red-600 text-sm font-medium">مشاهده همه</a>
+{# ── Recent orders + Top restaurants ── #}
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+  <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+    <div class="p-5 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
+      <h2 class="font-bold text-gray-800 dark:text-gray-100">آخرین سفارشات</h2>
+      <a href="{{ url_for('admin.orders') }}" class="text-red-500 hover:text-red-600 text-sm font-bold flex items-center gap-1">
+        مشاهده همه
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+      </a>
     </div>
-    <div class="overflow-x-auto">
-        <table class="w-full text-right">
-            <thead class="bg-gray-50 dark:bg-gray-700/50 text-gray-600 dark:text-gray-400 text-sm">
-                <tr>
-                    <th class="p-4">شناسه</th>
-                    <th class="p-4">مشتری</th>
-                    <th class="p-4">رستوران</th>
-                    <th class="p-4">مبلغ</th>
-                    <th class="p-4">وضعیت</th>
-                    <th class="p-4">تاریخ</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
-                {% for order in recent_orders %}
-                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-                    <td class="p-4 text-gray-600 dark:text-gray-400">#{{ order.id }}</td>
-                    <td class="p-4 font-medium text-gray-800 dark:text-gray-100">{{ order.user.name }}</td>
-                    <td class="p-4 text-gray-700 dark:text-gray-300">{{ order.seller.restaurant_name }}</td>
-                    <td class="p-4 text-gray-800 dark:text-gray-100">{{ "{:,}".format(order.total_price) }}</td>
-                    <td class="p-4">{{ status_badge(order.status) }}</td>
-                    <td class="p-4 text-gray-500 dark:text-gray-400 text-sm">{{ order.order_date.strftime('%Y/%m/%d %H:%M') }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <div class="divide-y divide-gray-50 dark:divide-gray-700/50">
+      {% for order in recent_orders %}
+      <div class="px-5 py-3.5 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700/30 transition">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-sm font-bold text-gray-600 dark:text-gray-300">
+            #{{ order.id }}
+          </div>
+          <div>
+            <div class="text-sm font-bold text-gray-800 dark:text-gray-100">{{ order.user.name }}</div>
+            <div class="text-xs text-gray-400">{{ order.seller.restaurant_name }}</div>
+          </div>
+        </div>
+        <div class="text-left flex items-center gap-3">
+          {{ status_badge(order.status) }}
+          <div>
+            <div class="text-sm font-bold text-gray-800 dark:text-gray-100">{{ "{:,}".format(order.total_price) }}</div>
+            <div class="text-xs text-gray-400">{{ order.order_date.strftime('%H:%M') }}</div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
     </div>
+  </div>
+
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+    <div class="p-5 border-b border-gray-100 dark:border-gray-700">
+      <h2 class="font-bold text-gray-800 dark:text-gray-100">پرفروش‌ترین رستوران‌ها</h2>
+    </div>
+    <div class="divide-y divide-gray-50 dark:divide-gray-700/50">
+      {% for order in recent_orders[:5] %}
+      <div class="px-5 py-3 flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-sm font-bold text-red-600">{{ loop.index }}</div>
+        <div class="flex-1 min-w-0">
+          <div class="text-sm font-bold text-gray-800 dark:text-gray-100 truncate">{{ order.seller.restaurant_name }}</div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
 </div>
 
 {% endblock %}
@@ -107,7 +153,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const textColor = isDark ? '#e5e7eb' : '#374151';
     const gridColor = isDark ? '#374151' : '#e5e7eb';
 
-    // Revenue chart
     new Chart(document.getElementById('revenueChart'), {
         type: 'line',
         data: {
@@ -116,34 +161,43 @@ document.addEventListener('DOMContentLoaded', function() {
                 label: 'فروش (تومان)',
                 data: [1200000, 1900000, 1500000, 2200000, 1800000, 2500000],
                 borderColor: '#ef4444',
-                backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                backgroundColor: 'rgba(239, 68, 68, 0.08)',
                 fill: true,
-                tension: 0.4
+                tension: 0.4,
+                pointBackgroundColor: '#ef4444',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                pointRadius: 4,
+                pointHoverRadius: 6
             }]
         },
         options: {
             responsive: true,
-            plugins: { legend: { labels: { color: textColor } } },
+            plugins: { legend: { display: false } },
             scales: {
-                x: { ticks: { color: textColor }, grid: { color: gridColor } },
-                y: { ticks: { color: textColor }, grid: { color: gridColor } }
+                x: { ticks: { color: textColor, font: { size: 11 } }, grid: { color: gridColor, drawBorder: false } },
+                y: { ticks: { color: textColor, font: { size: 11 }, callback: v => (v/1000000).toFixed(1) + 'M' }, grid: { color: gridColor, drawBorder: false } }
             }
         }
     });
 
-    // Status chart
     new Chart(document.getElementById('statusChart'), {
         type: 'doughnut',
         data: {
             labels: ['تکمیل شده', 'در حال آماده‌سازی', 'لغو شده', 'در انتظار'],
             datasets: [{
                 data: [45, 20, 10, 25],
-                backgroundColor: ['#22c55e', '#eab308', '#ef4444', '#3b82f6']
+                backgroundColor: ['#22c55e', '#eab308', '#ef4444', '#3b82f6'],
+                borderWidth: 0,
+                hoverOffset: 8
             }]
         },
         options: {
             responsive: true,
-            plugins: { legend: { labels: { color: textColor } } }
+            cutout: '65%',
+            plugins: {
+                legend: { position: 'bottom', labels: { color: textColor, padding: 12, usePointStyle: true, pointStyleWidth: 8, font: { size: 11 } } }
+            }
         }
     });
 });

@@ -7,6 +7,41 @@ auth_bp = Blueprint('auth', __name__)
 
 @auth_bp.route("/user/register", methods=["POST"])
 def register_user():
+    """Register a new customer account.
+    ---
+    tags: [Auth]
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [name, phone, password]
+            properties:
+              name:
+                type: string
+                example: Ali
+              phone:
+                type: string
+                example: "09121111111"
+              password:
+                type: string
+                example: mypassword123
+              city_name:
+                type: string
+                example: Tehran
+              address:
+                type: string
+              latitude:
+                type: number
+              longitude:
+                type: number
+    responses:
+      201:
+        description: Registration successful, returns token
+      400:
+        description: Missing fields or phone already exists
+    """
     data = request.json
     if not data.get("name") or not data.get("phone") or not data.get("password"):
         return jsonify({"message": "تمام اطلاعات الزامی است."}), 400
@@ -39,6 +74,42 @@ def register_user():
 
 @auth_bp.route("/seller/register", methods=["POST"])
 def register_seller():
+    """Register a new restaurant/seller account.
+    ---
+    tags: [Auth]
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [restaurant_name, phone, password]
+            properties:
+              restaurant_name:
+                type: string
+                example: Pizza Danial
+              phone:
+                type: string
+                example: "09123333333"
+              password:
+                type: string
+              city_name:
+                type: string
+              category:
+                type: string
+                example: Fast Food
+              address:
+                type: string
+              latitude:
+                type: number
+              longitude:
+                type: number
+    responses:
+      201:
+        description: Registration successful
+      400:
+        description: Missing fields or phone already exists
+    """
     data = request.json
     if not data.get("phone") or not data.get("password") or not data.get("restaurant_name"):
          return jsonify({"message": "تمام اطلاعات الزامی است."}), 400
@@ -72,6 +143,31 @@ def register_seller():
 
 @auth_bp.route("/user/login", methods=["POST"])
 def login_user():
+    """Login as a customer.
+    ---
+    tags: [Auth]
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [phone, password]
+            properties:
+              phone:
+                type: string
+                example: "09121111111"
+              password:
+                type: string
+                example: user123
+    responses:
+      200:
+        description: Login successful, returns token
+      401:
+        description: Invalid credentials
+      403:
+        description: Account is blocked
+    """
     data = request.json
     if not data.get("phone") or not data.get("password"):
         return jsonify({"message": "شماره تلفن و رمز عبور الزامی هستند."}), 400
@@ -97,6 +193,31 @@ def login_user():
 
 @auth_bp.route("/seller/login", methods=["POST"])
 def login_seller():
+    """Login as a restaurant/seller.
+    ---
+    tags: [Auth]
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [phone, password]
+            properties:
+              phone:
+                type: string
+                example: "09123333333"
+              password:
+                type: string
+                example: seller123
+    responses:
+      200:
+        description: Login successful, returns token
+      401:
+        description: Invalid credentials
+      403:
+        description: Account is blocked
+    """
     data = request.json
     if not data.get("phone") or not data.get("password"):
         return jsonify({"message": "شماره تلفن و رمز عبور الزامی هستند."}), 400

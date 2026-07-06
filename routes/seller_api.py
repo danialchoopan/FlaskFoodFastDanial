@@ -105,6 +105,39 @@ def upload_image():
 @seller_api_bp.route("/seller/foods", methods=["POST"])
 @token_required_seller
 def add_food():
+    """Add a new food item to the menu.
+    ---
+    tags: [Seller API]
+    security:
+      - BearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [name, description, price]
+            properties:
+              name:
+                type: string
+                example: Pepperoni Pizza
+              price:
+                type: number
+                example: 250000
+              description:
+                type: string
+              photo:
+                type: string
+                description: Base64 image data or URL path
+              availability:
+                type: boolean
+                default: true
+    responses:
+      201:
+        description: Food item created
+      400:
+        description: Missing required fields
+    """
     data = request.json
 
     # Check for required fields
@@ -157,6 +190,15 @@ def get_food(id):
 @seller_api_bp.route("/seller/foods", methods=["GET"])
 @token_required_seller
 def get_foods():
+    """Get all food items for this restaurant.
+    ---
+    tags: [Seller API]
+    security:
+      - BearerAuth: []
+    responses:
+      200:
+        description: List of food items
+    """
     foods = Food.query.filter_by(seller_id=request.seller.id).all()
     return jsonify([{
         "id": food.id,
@@ -195,6 +237,15 @@ def delete_food(food_id):
 @seller_api_bp.route("/seller/orders/not", methods=["GET"])
 @token_required_seller
 def get_seller_orders_not_finish():
+    """Get active orders (not completed/cancelled).
+    ---
+    tags: [Seller API]
+    security:
+      - BearerAuth: []
+    responses:
+      200:
+        description: List of active orders
+    """
     orders = Order.query.filter(
         Order.seller_id == request.seller.id,
         Order.status != OrderStatus.COMPLETED,
@@ -244,6 +295,21 @@ def get_seller_order_details(order_id):
 @seller_api_bp.route("/seller/orders/preparing/<int:order_id>", methods=["PUT"])
 @token_required_seller
 def preparing_order(order_id):
+    """Mark an order as being prepared.
+    ---
+    tags: [Seller API]
+    security:
+      - BearerAuth: []
+    parameters:
+      - in: path
+        name: order_id
+        required: true
+        schema:
+          type: integer
+    responses:
+      200:
+        description: Order status updated to preparing
+    """
     order = Order.query.filter_by(id=order_id, seller_id=request.seller.id).first()
     if not order:
         return jsonify({"message": "سفارش یافت نشد"}), 404
@@ -254,6 +320,21 @@ def preparing_order(order_id):
 @seller_api_bp.route("/seller/orders/completed/<int:order_id>", methods=["PUT"])
 @token_required_seller
 def completed_order(order_id):
+    """Mark an order as completed.
+    ---
+    tags: [Seller API]
+    security:
+      - BearerAuth: []
+    parameters:
+      - in: path
+        name: order_id
+        required: true
+        schema:
+          type: integer
+    responses:
+      200:
+        description: Order marked as completed
+    """
     order = Order.query.filter_by(id=order_id, seller_id=request.seller.id).first()
     if not order:
         return jsonify({"message": "سفارش یافت نشد"}), 404
@@ -274,6 +355,15 @@ def seller_cancel_order(order_id):
 @seller_api_bp.route("/seller/orders/total", methods=["GET"])
 @token_required_seller
 def get_seller_total_orders():
+    """Get total completed orders and sales amount.
+    ---
+    tags: [Seller API]
+    security:
+      - BearerAuth: []
+    responses:
+      200:
+        description: Total completed count and sales figure
+    """
     completed_orders = Order.query.filter_by(seller_id=request.seller.id, status=OrderStatus.COMPLETED).all()
     total_sales = sum(order.total_price for order in completed_orders)
     return jsonify({

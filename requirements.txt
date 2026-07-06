@@ -4,3 +4,4 @@ flask-migrate
 werkzeug
 flask-cors
 jdatetime
+flasgger

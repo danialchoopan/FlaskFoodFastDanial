@@ -50,6 +50,17 @@ def update_location():
 @user_api_bp.route("/user/restaurants", methods=["GET"])
 @token_required_user
 def get_restaurants():
+    """Get list of restaurants in user's city.
+    ---
+    tags: [User API]
+    security:
+      - BearerAuth: []
+    responses:
+      200:
+        description: List of open restaurants with food items
+      401:
+        description: Invalid or missing token
+    """
     user = User.query.get_or_404(request.user.id)
     sellers = Seller.query.filter_by(city_name=user.city_name, is_active=True).all()
     restaurants = [
@@ -70,6 +81,21 @@ def get_restaurants():
 @user_api_bp.route("/user/restaurant/<int:id>", methods=["GET"])
 @token_required_user
 def get_restaurant_by_id(id):
+    """Get restaurant details with menu and comments.
+    ---
+    tags: [User API]
+    security:
+      - BearerAuth: []
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+    responses:
+      200:
+        description: Restaurant details with foods and comments
+    """
     seller = Seller.query.get_or_404(id)
     seller_foods = Food.query.filter_by(seller_id=seller.id).all()
     seller_comments = Comment.query.filter_by(seller_id=seller.id).all()
@@ -107,6 +133,32 @@ def get_restaurant_by_id(id):
 @user_api_bp.route('/add/comment', methods=['POST'])
 @token_required_user
 def add_comment():
+    """Add a comment/review for a restaurant.
+    ---
+    tags: [User API]
+    security:
+      - BearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [seller_id, content]
+            properties:
+              seller_id:
+                type: integer
+              content:
+                type: string
+              rating:
+                type: integer
+                minimum: 1
+                maximum: 5
+                default: 5
+    responses:
+      201:
+        description: Comment added
+    """
     user = User.query.get_or_404(request.user.id)
     seller_id = request.json.get('seller_id')
     content = request.json.get('content')
@@ -151,6 +203,30 @@ def get_comments(seller_id):
 @user_api_bp.route("/add/order", methods=["POST"])
 @token_required_user
 def place_order():
+    """Place a new order.
+    ---
+    tags: [User API]
+    security:
+      - BearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [seller_id, details]
+            properties:
+              seller_id:
+                type: integer
+              details:
+                type: string
+                description: "Stringified list of [food_id, quantity] pairs, e.g. '[[1, 2], [3, 1]]'"
+    responses:
+      201:
+        description: Order placed successfully
+      400:
+        description: Invalid order data
+    """
     user = User.query.get_or_404(request.user.id)
     data = request.json
     if not data.get("seller_id") or not data.get("details"):
@@ -199,6 +275,15 @@ def place_order():
 @user_api_bp.route("/user/orders", methods=["GET"])
 @token_required_user
 def get_user_orders():
+    """Get user's active orders (excluding completed/cancelled).
+    ---
+    tags: [User API]
+    security:
+      - BearerAuth: []
+    responses:
+      200:
+        description: List of active orders
+    """
     orders = Order.query.filter(
         Order.user_id == request.user.id,
         Order.status != OrderStatus.COMPLETED,
@@ -267,6 +352,23 @@ def get_user_order(order_id):
 @user_api_bp.route("/user/orders/cancel/<int:order_id>", methods=["PUT"])
 @token_required_user
 def cancel_order(order_id):
+    """Cancel an order by the user.
+    ---
+    tags: [User API]
+    security:
+      - BearerAuth: []
+    parameters:
+      - in: path
+        name: order_id
+        required: true
+        schema:
+          type: integer
+    responses:
+      200:
+        description: Order cancelled
+      404:
+        description: Order not found
+    """
     order = Order.query.filter_by(id=order_id, user_id=request.user.id).first()
     if not order:
         return jsonify({"message": "سفارش پیدا نشد یا شما اجازه لغو آن را ندارید."}), 404
