@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% from 'utils/order_status.html' import status_badge with context %}
+
+{% block title %}سفارشات رستوران{% endblock %}
+
+{% block content %}
+<h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-6">مدیریت سفارشات</h1>
+
+{# ── Tabs ── #}
+<div class="flex gap-2 mb-6 border-b border-gray-200 dark:border-gray-700 pb-2">
+    <a href="?tab=active" class="px-4 py-2 rounded-lg text-sm font-bold transition {{ 'bg-red-600 text-white' if tab == 'active' else 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200' }}">فعال</a>
+    <a href="?tab=completed" class="px-4 py-2 rounded-lg text-sm font-bold transition {{ 'bg-green-600 text-white' if tab == 'completed' else 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200' }}">تکمیل شده</a>
+    <a href="?tab=cancelled" class="px-4 py-2 rounded-lg text-sm font-bold transition {{ 'bg-red-400 text-white' if tab == 'cancelled' else 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200' }}">لغو شده</a>
+</div>
+
+<div class="space-y-4">
+    {% for order in orders %}
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+        <div class="p-6 flex justify-between items-start">
+            <div>
+                <div class="flex items-center gap-3 mb-2">
+                    <span class="font-bold text-gray-800 dark:text-gray-100">سفارش #{{ order.id }}</span>
+                    {{ status_badge(order.status) }}
+                </div>
+                <p class="text-sm text-gray-500 dark:text-gray-400">مشتری: {{ order.user.name }} | تلفن: {{ order.user.phone }}</p>
+                {% if order.user.address %}
+                <p class="text-sm text-gray-500 dark:text-gray-400">آدرس: {{ order.user.address }}</p>
+                {% endif %}
+            </div>
+            <div class="text-left">
+                <div class="text-lg font-bold text-gray-800 dark:text-gray-100">{{ "{:,}".format(order.total_price) }} تومان</div>
+                <div class="text-sm text-gray-500 dark:text-gray-400">{{ order.order_date.strftime('%H:%M') }}</div>
+            </div>
+        </div>
+
+        {# Items #}
+        <div class="px-6 pb-4">
+            <div class="flex flex-wrap gap-2">
+                {% for detail in order.details %}
+                <span class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-3 py-1 rounded-lg text-sm">
+                    {{ detail.food.name }} &#215; {{ detail.quantity }}
+                </span>
+                {% endfor %}
+            </div>
+        </div>
+
+        {# Action buttons #}
+        {% if tab == 'active' %}
+        <div class="px-6 pb-6 flex gap-2">
+            {% if order.status in ['در انتظار تایید رستوران'] %}
+            <form action="{{ url_for('web_seller.update_order_status', order_id=order.id) }}" method="POST" class="inline">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="action" value="confirm">
+                <button class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-700">تایید</button>
+            </form>
+            <form action="{{ url_for('web_seller.update_order_status', order_id=order.id) }}" method="POST" class="inline">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="action" value="cancel">
+                <button class="bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-red-600">لغو</button>
+            </form>
+            {% endif %}
+            {% if order.status == 'تایید رستوران' %}
+            <form action="{{ url_for('web_seller.update_order_status', order_id=order.id) }}" method="POST" class="inline">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="action" value="preparing">
+                <button class="bg-yellow-500 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-yellow-600">شروع آماده‌سازی</button>
+            </form>
+            {% endif %}
+            {% if order.status == 'در حال آماده‌سازی' %}
+            <form action="{{ url_for('web_seller.update_order_status', order_id=order.id) }}" method="POST" class="inline">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="action" value="complete">
+                <button class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-green-700">تکمیل سفارش</button>
+            </form>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+    {% else %}
+    <div class="text-center py-16 text-gray-500 dark:text-gray-400">
+        <p>سفارشی در این بخش وجود ندارد.</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from models import db, User, Seller, Food, Order, OrderDetail, Comment
 from routes.auth_routes import token_required_seller
+from utils.order_status import OrderStatus
 import os
 from werkzeug.utils import secure_filename
 from flask import current_app
@@ -196,9 +197,9 @@ def delete_food(food_id):
 def get_seller_orders_not_finish():
     orders = Order.query.filter(
         Order.seller_id == request.seller.id,
-        Order.status != "سفارش شما تکمیل شد",
-        Order.status != "لغو رستوران",
-        Order.status != "لغو کاربر"
+        Order.status != OrderStatus.COMPLETED,
+        Order.status != OrderStatus.CANCELLED_BY_SELLER,
+        Order.status != OrderStatus.CANCELLED_BY_USER
     ).all()
     return jsonify([{
         "id": order.id,
@@ -246,7 +247,7 @@ def preparing_order(order_id):
     order = Order.query.filter_by(id=order_id, seller_id=request.seller.id).first()
     if not order:
         return jsonify({"message": "سفارش یافت نشد"}), 404
-    order.status = "در حال آماده‌سازی"
+    order.status = OrderStatus.PREPARING
     db.session.commit()
     return jsonify({"message": "وضعیت سفارش تغییر یافت"}), 200
 
@@ -256,7 +257,7 @@ def completed_order(order_id):
     order = Order.query.filter_by(id=order_id, seller_id=request.seller.id).first()
     if not order:
         return jsonify({"message": "سفارش یافت نشد"}), 404
-    order.status = "سفارش شما تکمیل شد"
+    order.status = OrderStatus.COMPLETED
     db.session.commit()
     return jsonify({"message": "سفارش تکمیل شد"}), 200
 
@@ -266,14 +267,14 @@ def seller_cancel_order(order_id):
     order = Order.query.filter_by(id=order_id, seller_id=request.seller.id).first()
     if not order:
         return jsonify({"message": "سفارش یافت نشد"}), 404
-    order.status = "لغو رستوران"
+    order.status = OrderStatus.CANCELLED_BY_SELLER
     db.session.commit()
     return jsonify({"message": "سفارش لغو شد"}), 200
 
 @seller_api_bp.route("/seller/orders/total", methods=["GET"])
 @token_required_seller
 def get_seller_total_orders():
-    completed_orders = Order.query.filter_by(seller_id=request.seller.id, status="سفارش شما تکمیل شد").all()
+    completed_orders = Order.query.filter_by(seller_id=request.seller.id, status=OrderStatus.COMPLETED).all()
     total_sales = sum(order.total_price for order in completed_orders)
     return jsonify({
         "completed_count": len(completed_orders),

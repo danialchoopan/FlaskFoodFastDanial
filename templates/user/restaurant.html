@@ -1,9 +1,10 @@
 {% extends 'base.html' %}
+{% from 'utils/order_status.html' import status_badge with context %}
 
 {% block title %}{{ restaurant.restaurant_name }} | منوی غذا{% endblock %}
 
 {% block content %}
-<div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-8">
+<div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden mb-8">
     <div class="h-64 bg-gray-300 relative">
         <img src="{{ url_for('static', filename=restaurant.image.replace('static/', '')) if restaurant.image else url_for('static', filename='banner/order-no-cost.jpg') }}" class="w-full h-full object-cover">
         <div class="absolute inset-0 bg-black bg-opacity-40 flex items-end">
@@ -16,15 +17,15 @@
     <div class="p-6 flex justify-between items-center">
         <div class="flex space-x-6 space-x-reverse">
             <div>
-                <span class="text-gray-500 block text-sm">امتیاز</span>
+                <span class="text-gray-500 dark:text-gray-400 block text-sm">امتیاز</span>
                 <span class="font-bold text-lg">{{ restaurant.average_rating }} / ۵</span>
             </div>
             <div>
-                <span class="text-gray-500 block text-sm">دسته بندی</span>
+                <span class="text-gray-500 dark:text-gray-400 block text-sm">دسته بندی</span>
                 <span class="font-bold text-lg">{{ restaurant.category }}</span>
             </div>
         </div>
-        <div class="{{ 'bg-green-100 text-green-800' if restaurant.open else 'bg-red-100 text-red-800' }} px-4 py-2 rounded-full font-bold">
+        <div class="{{ 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-300' if restaurant.open else 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-300' }} px-4 py-2 rounded-full font-bold">
             {{ 'رستوران باز است' if restaurant.open else 'رستوران بسته است' }}
         </div>
     </div>
@@ -32,21 +33,22 @@
 
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
     <div class="lg:col-span-2">
-        <h2 class="text-2xl font-bold mb-6 border-b pb-2 text-gray-800">منوی غذاها</h2>
+        <h2 class="text-2xl font-bold mb-6 border-b border-gray-200 dark:border-gray-700 pb-2 text-gray-800 dark:text-gray-100">منوی غذاها</h2>
         <div class="space-y-4">
             {% for food in restaurant.foods %}
-            <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100 flex justify-between items-center">
+            <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700 flex justify-between items-center">
                 <div class="flex items-center">
                     <img src="{{ url_for('static', filename=food.photo.replace('static/', '')) if food.photo else url_for('static', filename='banner/order-no-cost.jpg') }}" class="w-20 h-20 rounded-md object-cover ml-4">
                     <div>
-                        <h3 class="font-bold text-lg text-gray-800">{{ food.name }}</h3>
-                        <p class="text-gray-500 text-sm">{{ food.description }}</p>
+                        <h3 class="font-bold text-lg text-gray-800 dark:text-gray-100">{{ food.name }}</h3>
+                        <p class="text-gray-500 dark:text-gray-400 text-sm">{{ food.description }}</p>
                         <span class="text-red-600 font-bold block mt-1">{{ food.price }} تومان</span>
                     </div>
                 </div>
                 <form action="{{ url_for('web_user.add_to_cart') }}" method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <input type="hidden" name="food_id" value="{{ food.id }}">
-                    <button type="submit" class="bg-gray-100 hover:bg-red-600 hover:text-white text-gray-800 px-4 py-2 rounded-md transition font-bold">
+                    <button type="submit" class="bg-gray-100 dark:bg-gray-700 hover:bg-red-600 hover:text-white text-gray-800 dark:text-gray-200 px-4 py-2 rounded-md transition font-bold">
                         افزودن به سبد
                     </button>
                 </form>
@@ -54,13 +56,14 @@
             {% endfor %}
         </div>
 
-        <h2 class="text-2xl font-bold mt-12 mb-6 border-b pb-2 text-gray-800">نظرات کاربران</h2>
+        <h2 class="text-2xl font-bold mt-12 mb-6 border-b border-gray-200 dark:border-gray-700 pb-2 text-gray-800 dark:text-gray-100">نظرات کاربران</h2>
         {% if session.user_id %}
-        <form action="{{ url_for('web_user.add_comment') }}" method="POST" class="mb-8 bg-gray-50 p-4 rounded-lg border">
+        <form action="{{ url_for('web_user.add_comment') }}" method="POST" class="mb-8 bg-gray-50 dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <input type="hidden" name="seller_id" value="{{ restaurant.id }}">
             <div class="mb-4">
-                <label class="block text-sm font-bold mb-2">امتیاز شما</label>
-                <select name="rating" class="w-full p-2 rounded border">
+                <label class="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300">امتیاز شما</label>
+                <select name="rating" class="w-full p-2 rounded border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
                     <option value="5">۵ ستاره (عالی)</option>
                     <option value="4">۴ ستاره (خوب)</option>
                     <option value="3">۳ ستاره (متوسط)</option>
@@ -69,8 +72,8 @@
                 </select>
             </div>
             <div class="mb-4">
-                <label class="block text-sm font-bold mb-2">متن نظر</label>
-                <textarea name="content" class="w-full p-2 rounded border" rows="3" placeholder="تجربه خود را بنویسید..." required></textarea>
+                <label class="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300">متن نظر</label>
+                <textarea name="content" class="w-full p-2 rounded border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" rows="3" placeholder="تجربه خود را بنویسید..." required></textarea>
             </div>
             <button type="submit" class="bg-red-600 text-white px-6 py-2 rounded font-bold hover:bg-red-700">ثبت نظر</button>
         </form>
@@ -78,12 +81,12 @@
 
         <div class="space-y-6">
             {% for comment in restaurant.comments %}
-            <div class="bg-white p-4 rounded-lg border border-gray-100">
+            <div class="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-100 dark:border-gray-700">
                 <div class="flex justify-between items-center mb-2">
-                    <span class="font-bold text-gray-800">{{ comment.user.name }}</span>
-                    <span class="text-yellow-500 font-bold">{{ comment.rating }} ★</span>
+                    <span class="font-bold text-gray-800 dark:text-gray-100">{{ comment.user.name }}</span>
+                    <span class="text-yellow-500 font-bold">{{ comment.rating }} &#9733;</span>
                 </div>
-                <p class="text-gray-700">{{ comment.content }}</p>
+                <p class="text-gray-700 dark:text-gray-300">{{ comment.content }}</p>
                 <span class="text-xs text-gray-400 mt-2 block">{{ comment.created_at.strftime('%Y/%m/%d') }}</span>
             </div>
             {% else %}
@@ -93,22 +96,23 @@
     </div>
 
     <div class="lg:col-span-1">
-        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 sticky top-6">
-            <h2 class="text-xl font-bold mb-4 text-gray-800">سبد خرید</h2>
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 sticky top-6">
+            <h2 class="text-xl font-bold mb-4 text-gray-800 dark:text-gray-100">سبد خرید</h2>
             {% if session.cart %}
                 <div class="space-y-4 mb-6">
                     {% for item in session.cart %}
-                    <div class="flex justify-between items-center text-sm">
+                    <div class="flex justify-between items-center text-sm text-gray-700 dark:text-gray-300">
                         <span>{{ item.name }} ({{ item.quantity }})</span>
                         <span class="font-bold">{{ item.price * item.quantity }} تومان</span>
                     </div>
                     {% endfor %}
-                    <div class="border-t pt-4 flex justify-between items-center font-bold text-lg">
+                    <div class="border-t border-gray-200 dark:border-gray-700 pt-4 flex justify-between items-center font-bold text-lg text-gray-800 dark:text-gray-100">
                         <span>جمع کل:</span>
                         <span>{{ session.total_price }} تومان</span>
                     </div>
                 </div>
                 <form action="{{ url_for('web_user.place_order') }}" method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <input type="hidden" name="seller_id" value="{{ restaurant.id }}">
                     <button type="submit" class="w-full bg-red-600 text-white py-3 rounded-lg font-bold hover:bg-red-700 transition">
                         تکمیل سفارش

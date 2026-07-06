@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from models import db, User, Seller, Food, Order, OrderDetail, Comment
 from routes.auth_routes import token_required_user
+from utils.order_status import OrderStatus
 import ast
 import jdatetime
 from datetime import datetime
@@ -178,7 +179,7 @@ def place_order():
         user_id=user.id,
         seller_id=data["seller_id"],
         total_price=total_price,
-        status="تایید رستوران"
+        status=OrderStatus.CONFIRMED
     )
     db.session.add(new_order)
     db.session.commit()
@@ -200,9 +201,9 @@ def place_order():
 def get_user_orders():
     orders = Order.query.filter(
         Order.user_id == request.user.id,
-        Order.status != "سفارش شما تکمیل شد",
-        Order.status != "لغو رستوران",
-        Order.status != "لغو کاربر"
+        Order.status != OrderStatus.COMPLETED,
+        Order.status != OrderStatus.CANCELLED_BY_SELLER,
+        Order.status != OrderStatus.CANCELLED_BY_USER
     ).all()
     return jsonify([{
         "id": order.id,
@@ -269,7 +270,7 @@ def cancel_order(order_id):
     order = Order.query.filter_by(id=order_id, user_id=request.user.id).first()
     if not order:
         return jsonify({"message": "سفارش پیدا نشد یا شما اجازه لغو آن را ندارید."}), 404
-    order.status = "لغو کاربر"
+    order.status = OrderStatus.CANCELLED_BY_USER
     try:
         db.session.commit()
         return jsonify({"message": "سفارش با موفقیت لغو شد.", "order_id": order.id}), 200
@@ -281,8 +282,8 @@ def cancel_order(order_id):
 @token_required_user
 def get_user_total_orders():
     user_id = request.user.id
-    completed_orders = Order.query.filter(Order.user_id == user_id, Order.status == "سفارش شما تکمیل شد").all()
-    canceled_orders = Order.query.filter(Order.user_id == user_id, Order.status.in_(["لغو رستوران", "لغو کاربر"])).all()
+    completed_orders = Order.query.filter(Order.user_id == user_id, Order.status == OrderStatus.COMPLETED).all()
+    canceled_orders = Order.query.filter(Order.user_id == user_id, Order.status.in_([OrderStatus.CANCELLED_BY_SELLER, OrderStatus.CANCELLED_BY_USER])).all()
     total_price = sum(order.total_price for order in completed_orders)
     completed_count = len(completed_orders)
     canceled_count = len(canceled_orders)

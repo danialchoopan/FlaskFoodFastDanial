@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}مدیریت رستوران‌ها{% endblock %}
+
+{% block content %}
+<div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+    <div class="p-6 border-b border-gray-100 dark:border-gray-700">
+        <h2 class="text-xl font-bold text-gray-800 dark:text-gray-100">مدیریت رستوران‌ها</h2>
+    </div>
+
+    {# Search #}
+    <div class="p-4 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30">
+        <form method="GET" class="flex gap-3 items-center">
+            <input type="text" name="search" value="{{ search }}" placeholder="جستجو بر اساس نام یا تلفن..." class="flex-1 p-2 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm">
+            <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-red-700">جستجو</button>
+            {% if search %}
+            <a href="{{ url_for('admin.sellers') }}" class="text-gray-500 hover:text-gray-700 text-sm">پاک کردن</a>
+            {% endif %}
+        </form>
+    </div>
+
+    <div class="overflow-x-auto">
+        <table class="w-full text-right">
+            <thead class="bg-gray-50 dark:bg-gray-700/50 text-gray-600 dark:text-gray-400 text-sm">
+                <tr>
+                    <th class="p-4">نام رستوران</th>
+                    <th class="p-4">تلفن</th>
+                    <th class="p-4">شهر</th>
+                    <th class="p-4">دسته‌بندی</th>
+                    <th class="p-4">امتیاز</th>
+                    <th class="p-4">وضعیت</th>
+                    <th class="p-4">عملیات</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+                {% for seller in sellers %}
+                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                    <td class="p-4 font-bold text-gray-800 dark:text-gray-100">{{ seller.restaurant_name }}</td>
+                    <td class="p-4 text-gray-600 dark:text-gray-400">{{ seller.phone }}</td>
+                    <td class="p-4 text-gray-600 dark:text-gray-400">{{ seller.city_name }}</td>
+                    <td class="p-4 text-gray-600 dark:text-gray-400">{{ seller.category }}</td>
+                    <td class="p-4 text-yellow-500 font-bold">{{ seller.average_rating }} &#9733;</td>
+                    <td class="p-4">
+                        {% if seller.is_active %}
+                        <span class="text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900 px-2 py-1 rounded text-xs">فعال</span>
+                        {% else %}
+                        <span class="text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900 px-2 py-1 rounded text-xs">مسدود</span>
+                        {% endif %}
+                    </td>
+                    <td class="p-4 flex gap-2">
+                        <form action="{{ url_for('admin.toggle_seller', id=seller.id) }}" method="POST" class="inline">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="text-sm {% if seller.is_active %}text-red-500 hover:text-red-700{% else %}text-green-500 hover:text-green-700{% endif %} font-medium">
+                                {% if seller.is_active %}مسدود{% else %}فعال‌سازی{% endif %}
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="7" class="p-8 text-center text-gray-500 dark:text-gray-400">رستورانی یافت نشد.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {# Pagination #}
+    {% if pagination and pagination.pages > 1 %}
+    <div class="px-6 py-4 border-t border-gray-100 dark:border-gray-700 flex justify-center gap-2">
+        {% if pagination.has_prev %}
+        <a href="?page={{ pagination.prev_num }}&search={{ search }}" class="px-3 py-1 rounded bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm">قبلی</a>
+        {% endif %}
+        {% for p in range(1, pagination.pages + 1) %}
+        <a href="?page={{ p }}&search={{ search }}" class="px-3 py-1 rounded text-sm {{ 'bg-red-600 text-white' if p == pagination.page else 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300' }}">{{ p }}</a>
+        {% endfor %}
+        {% if pagination.has_next %}
+        <a href="?page={{ pagination.next_num }}&search={{ search }}" class="px-3 py-1 rounded bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm">بعدی</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

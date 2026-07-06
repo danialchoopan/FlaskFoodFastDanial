@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 from models import db, User, Seller, Food, Order, OrderDetail, Comment
+from utils.order_status import OrderStatus
 import secrets
 
 web_user_bp = Blueprint('web_user', __name__)
@@ -56,7 +57,7 @@ def add_to_cart():
         cart.append({
             'id': food.id,
             'name': food.name,
-            'price': int(food.price),
+            'price': float(food.price),
             'quantity': 1
         })
 
@@ -81,7 +82,7 @@ def place_order():
         user_id=session["user_id"],
         seller_id=seller_id,
         total_price=session["total_price"],
-        status="در انتظار تایید رستوران"
+        status=OrderStatus.WAITING_CONFIRMATION
     )
     db.session.add(new_order)
     db.session.flush()

@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}گزارشات فروش{% endblock %}
+
+{% block content %}
+<h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-6">گزارشات فروش</h1>
+
+{# ── Period selector ── #}
+<div class="flex gap-2 mb-6">
+    <a href="?period=daily" class="px-4 py-2 rounded-lg text-sm font-bold transition {{ 'bg-red-600 text-white' if period == 'daily' else 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300' }}">روزانه</a>
+    <a href="?period=weekly" class="px-4 py-2 rounded-lg text-sm font-bold transition {{ 'bg-red-600 text-white' if period == 'weekly' else 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300' }}">هفتگی</a>
+    <a href="?period=monthly" class="px-4 py-2 rounded-lg text-sm font-bold transition {{ 'bg-red-600 text-white' if period == 'monthly' else 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300' }}">ماهانه</a>
+</div>
+
+{# ── Stats ── #}
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+        <div class="text-gray-500 dark:text-gray-400 text-sm mb-1">مجموع فروش</div>
+        <div class="text-3xl font-bold text-green-600">{{ "{:,}".format(total_revenue) }} تومان</div>
+    </div>
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+        <div class="text-gray-500 dark:text-gray-400 text-sm mb-1">تعداد سفارشات تکمیل شده</div>
+        <div class="text-3xl font-bold text-gray-800 dark:text-gray-100">{{ total_orders }}</div>
+    </div>
+</div>
+
+{# ── Top items ── #}
+<div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+    <div class="p-6 border-b border-gray-100 dark:border-gray-700">
+        <h2 class="text-xl font-bold text-gray-800 dark:text-gray-100">پرفروش‌ترین اقلام</h2>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="w-full text-right">
+            <thead class="bg-gray-50 dark:bg-gray-700/50 text-gray-600 dark:text-gray-400 text-sm">
+                <tr>
+                    <th class="p-4">#</th>
+                    <th class="p-4">نام غذا</th>
+                    <th class="p-4">تعداد فروش</th>
+                    <th class="p-4">درآمد</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+                {% for item in top_items %}
+                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                    <td class="p-4 text-gray-500 dark:text-gray-400">{{ loop.index }}</td>
+                    <td class="p-4 font-bold text-gray-800 dark:text-gray-100">{{ item.name }}</td>
+                    <td class="p-4 text-gray-700 dark:text-gray-300">{{ item.count }}</td>
+                    <td class="p-4 text-green-600 font-bold">{{ "{:,}".format(item.revenue|int) }} تومان</td>
+                </tr>
+                {% else %}
+                <tr><td colspan="4" class="p-8 text-center text-gray-500 dark:text-gray-400">داده‌ای موجود نیست.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

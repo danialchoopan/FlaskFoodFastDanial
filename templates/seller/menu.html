@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block title %}منوی غذا{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">منوی غذا</h1>
+    <button onclick="document.getElementById('addModal').classList.remove('hidden')" class="bg-red-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-red-700 transition">افزودن غذا</button>
+</div>
+
+{# ── Food grid ── #}
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for food in foods %}
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+        <div class="h-40 bg-gray-200 dark:bg-gray-700">
+            {% if food.photo %}
+            <img src="{{ url_for('static', filename=food.photo.replace('static/', '')) }}" class="w-full h-full object-cover">
+            {% else %}
+            <div class="w-full h-full flex items-center justify-center text-gray-400">
+                <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            </div>
+            {% endif %}
+        </div>
+        <div class="p-4">
+            <div class="flex justify-between items-start mb-2">
+                <h3 class="font-bold text-gray-800 dark:text-gray-100">{{ food.name }}</h3>
+                <span class="text-red-600 font-bold text-sm">{{ "{:,}".format(food.price) }} تومان</span>
+            </div>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">{{ food.description }}</p>
+            <div class="flex items-center justify-between">
+                <form action="{{ url_for('web_seller.toggle_food', food_id=food.id) }}" method="POST" class="inline">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button class="text-sm px-3 py-1 rounded-lg font-medium {{ 'bg-green-100 text-green-700 hover:bg-green-200' if food.availability else 'bg-red-100 text-red-700 hover:bg-red-200' }}">
+                        {{ 'موجود' if food.availability else 'ناموجود' }}
+                    </button>
+                </form>
+                <div class="flex gap-2">
+                    <button onclick="openEditModal({{ food.id }}, '{{ food.name }}', {{ food.price }}, '{{ food.description }}')" class="text-blue-500 hover:text-blue-700 text-sm">ویرایش</button>
+                    <form action="{{ url_for('web_seller.delete_food', food_id=food.id) }}" method="POST" class="inline">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button onclick="return confirm('آیا از حذف این غذا مطمئن هستید؟')" class="text-red-500 hover:text-red-700 text-sm">حذف</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="col-span-full text-center py-16 text-gray-500 dark:text-gray-400">
+        <p>هنوز غذایی اضافه نشده است.</p>
+    </div>
+    {% endfor %}
+</div>
+
+{# ── Add modal ── #}
+<div id="addModal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-md w-full p-6">
+        <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4">افزودن غذای جدید</h3>
+        <form action="{{ url_for('web_seller.add_food') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">نام غذا</label>
+                <input type="text" name="name" required class="w-full p-2 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">قیمت (تومان)</label>
+                <input type="number" name="price" required class="w-full p-2 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">توضیحات</label>
+                <textarea name="description" class="w-full p-2 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" rows="2"></textarea>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">تصویر</label>
+                <input type="file" name="photo" accept="image/*" class="w-full p-2 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm">
+            </div>
+            <div class="flex gap-3">
+                <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-red-700">افزودن</button>
+                <button type="button" onclick="document.getElementById('addModal').classList.add('hidden')" class="bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-lg font-bold">لغو</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{# ── Edit modal ── #}
+<div id="editModal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-md w-full p-6">
+        <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4">ویرایش غذا</h3>
+        <form id="editForm" method="POST" enctype="multipart/form-data" class="space-y-4">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">نام غذا</label>
+                <input type="text" name="name" id="editName" required class="w-full p-2 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">قیمت (تومان)</label>
+                <input type="number" name="price" id="editPrice" required class="w-full p-2 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">توضیحات</label>
+                <textarea name="description" id="editDesc" class="w-full p-2 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" rows="2"></textarea>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">تصویر جدید</label>
+                <input type="file" name="photo" accept="image/*" class="w-full p-2 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm">
+            </div>
+            <div class="flex gap-3">
+                <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-red-700">ذخیره</button>
+                <button type="button" onclick="document.getElementById('editModal').classList.add('hidden')" class="bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-lg font-bold">لغو</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function openEditModal(id, name, price, desc) {
+    document.getElementById('editForm').action = '/seller/web/menu/edit/' + id;
+    document.getElementById('editName').value = name;
+    document.getElementById('editPrice').value = price;
+    document.getElementById('editDesc').value = desc;
+    document.getElementById('editModal').classList.remove('hidden');
+}
+</script>
+{% endblock %}

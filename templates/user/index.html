@@ -4,22 +4,22 @@
 
 {% block content %}
 <div class="mb-8">
-    <h1 class="text-3xl font-extrabold text-gray-900">رستوران‌های اطراف شما</h1>
-    <p class="mt-2 text-gray-600">بهترین غذاها را از محبوب‌ترین رستوران‌ها سفارش دهید.</p>
+    <h1 class="text-3xl font-extrabold text-gray-900 dark:text-gray-100">رستوران‌های اطراف شما</h1>
+    <p class="mt-2 text-gray-600 dark:text-gray-400">بهترین غذاها را از محبوب‌ترین رستوران‌ها سفارش دهید.</p>
 </div>
 
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
     {% for seller in restaurants %}
-    <div class="bg-white rounded-lg shadow overflow-hidden border border-gray-100 transition hover:shadow-lg">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden border border-gray-100 dark:border-gray-700 transition hover:shadow-lg">
         <img src="{{ url_for('static', filename=seller.image.replace('static/', '')) if seller.image else url_for('static', filename='banner/order-no-cost.jpg') }}" alt="{{ seller.restaurant_name }}" class="w-full h-48 object-cover">
         <div class="p-4">
             <div class="flex justify-between items-start">
-                <h2 class="text-xl font-bold text-gray-800">{{ seller.restaurant_name }}</h2>
-                <span class="bg-yellow-100 text-yellow-800 text-sm font-medium px-2.5 py-0.5 rounded">{{ seller.average_rating }} ★</span>
+                <h2 class="text-xl font-bold text-gray-800 dark:text-gray-100">{{ seller.restaurant_name }}</h2>
+                <span class="bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-300 text-sm font-medium px-2.5 py-0.5 rounded">{{ seller.average_rating }} &#9733;</span>
             </div>
-            <p class="text-sm text-gray-500 mt-1">{{ seller.category }}</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">{{ seller.category }}</p>
             <div class="mt-4 flex items-center justify-between">
-                <span class="text-sm {{ 'text-green-600' if seller.open else 'text-red-600' }}">
+                <span class="text-sm {{ 'text-green-600 dark:text-green-400' if seller.open else 'text-red-600 dark:text-red-400' }}">
                     {{ 'باز است' if seller.open else 'بسته است' }}
                 </span>
                 <a href="/restaurant/{{ seller.id }}" class="bg-red-600 text-white px-4 py-2 rounded text-sm hover:bg-red-700 transition">مشاهده منو</a>

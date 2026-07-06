@@ -4,6 +4,12 @@ from datetime import datetime
 
 db = SQLAlchemy()
 
+
+class Setting(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    key = db.Column(db.String(100), unique=True, nullable=False)
+    value = db.Column(db.Text, nullable=False)
+
 # مدل مدیران سیستم
 class Admin(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -77,7 +83,7 @@ class Food(db.Model):
     name = db.Column(db.String(100), nullable=False)
     photo = db.Column(db.Text, nullable=True)
     description = db.Column(db.Text, nullable=True)
-    price = db.Column(db.Text, nullable=False)
+    price = db.Column(db.Numeric(10, 2), nullable=False)
     availability = db.Column(db.Boolean, default=True)
     seller = db.relationship('Seller', backref=db.backref('foods', lazy=True))
 

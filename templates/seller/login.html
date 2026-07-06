@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}ورود پنل رستوران | دانیال فست فود{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto bg-white dark:bg-gray-800 p-8 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 mt-10">
+    <div class="text-center mb-8">
+        <h1 class="text-2xl font-bold text-red-600">ورود به پنل رستوران</h1>
+        <p class="text-gray-500 dark:text-gray-400 mt-2">مدیریت سفارشات و منوی غذا</p>
+    </div>
+
+    <form action="{{ url_for('web_seller.login') }}" method="POST" class="space-y-4">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">شماره تلفن</label>
+            <input type="text" name="phone" required class="w-full p-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none" placeholder="09121111111">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">رمز عبور</label>
+            <input type="password" name="password" required class="w-full p-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none" placeholder="******">
+        </div>
+        <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg transition-colors">
+            ورود به پنل رستوران
+        </button>
+    </form>
+</div>
+{% endblock %}
