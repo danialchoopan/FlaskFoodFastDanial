@@ -1,7 +1,7 @@
 instance/
-
-.venv
-.idea
-__pycache__
-static/
-static__pycache__/
+venv/
+.venv/
+.idea/
+__pycache__/
+*.pyc
+.mimocode/

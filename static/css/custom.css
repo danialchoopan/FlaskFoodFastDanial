@@ -1,0 +1,21 @@
+/* Smooth transitions for dark mode */
+* { transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+.dark ::-webkit-scrollbar-thumb { background: #475569; }
+
+/* Sidebar link active state */
+.sidebar-link.active {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  font-weight: 600;
+}
+.dark .sidebar-link.active {
+  background-color: rgba(239, 68, 68, 0.2);
+}
+
+/* Chart canvas responsive */
+canvas { max-width: 100%; }
